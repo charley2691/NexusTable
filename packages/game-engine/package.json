@@ -1,0 +1,14 @@
+{
+  "name": "@nexustable/game-engine",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@nexustable/shared": "0.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "ts-node": "^10.9.2"
+  }
+}
