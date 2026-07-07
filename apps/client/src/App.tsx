@@ -1,60 +1,27 @@
-import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
-import "./App.css";
-
-const socket = io("http://localhost:3001", {
-  autoConnect: true
-});
+import { useEffect, useRef } from "react";
+import { Battlefield } from "@nexustable/battlefield";
 
 function App() {
-  const [connected, setConnected] = useState(false);
-  const [version, setVersion] = useState("");
+    const containerRef = useRef<HTMLDivElement>(null);
 
-useEffect(() => {
-  socket.on("connect", () => {
-    console.log("Connected to NexusTable server");
+    useEffect(() => {
+        if (!containerRef.current) return;
 
-    socket.emit("request-status");
-  });
+        const battlefield = new Battlefield();
 
-socket.on("server-status", (data) => {
-  console.log("Server status received:", data);
+        battlefield.initialize(containerRef.current);
+    }, []);
 
-  setConnected(data.connected);
-  setVersion(data.version);
-});
-
-  return () => {
-    socket.off("connect");
-    socket.off("server-status");
-  };
-}, []);
-
-  return (
-    <div className="app">
-      <div className="card">
-        <h1>NexusTable</h1>
-
-        <p>
-          Server Status:
-          {" "}
-          {connected ? (
-            <span className="online">
-              🟢 Connected
-            </span>
-          ) : (
-            <span className="offline">
-              🔴 Disconnected
-            </span>
-          )}
-        </p>
-
-        <p>
-          Version: {version || "Loading..."}
-        </p>
-      </div>
-    </div>
-  );
+    return (
+        <div
+            ref={containerRef}
+            style={{
+                width: "100vw",
+                height: "100vh",
+                overflow: "hidden"
+            }}
+        />
+    );
 }
 
 export default App;
