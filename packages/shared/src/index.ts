@@ -3,14 +3,28 @@ export interface Entity {
   components: Component[];
 }
 
+
 export interface Component {
   type: string;
   data: Record<string, unknown>;
 }
+
 
 export interface Scene {
   id: string;
   name: string;
   entities: Entity[];
   metadata: Record<string, unknown>;
+}
+
+
+export interface Position {
+  x: number;
+  y: number;
+}
+
+
+export interface GridPosition {
+  x: number;
+  y: number;
 }
