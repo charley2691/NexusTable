@@ -1,0 +1,15 @@
+{
+  "name": "nexustable",
+  "version": "0.0.1",
+  "private": true,
+  "description": "A self-hosted, plugin-driven virtual tabletop platform.",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "plugins/*"
+  ],
+  "scripts": {
+    "dev": "echo Starting NexusTable..."
+  }
+}
