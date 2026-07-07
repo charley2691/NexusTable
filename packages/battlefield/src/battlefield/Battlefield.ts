@@ -1,12 +1,16 @@
 import { Application } from "pixi.js";
 import { Grid } from "../grid/Grid";
 import { GridRenderer } from "../grid/GridRenderer";
+import { Camera } from "../camera/Camera";
+import { CameraController } from "../camera/CameraController";
 
 export class Battlefield {
     private app: Application;
+    private camera: Camera;
 
     constructor() {
         this.app = new Application();
+        this.camera = new Camera();
     }
 
     async initialize(container: HTMLElement) {
@@ -16,6 +20,14 @@ export class Battlefield {
         });
 
         container.appendChild(this.app.canvas);
+        new CameraController(
+    this.camera,
+    this.app.canvas
+);
+
+        this.app.stage.addChild(
+            this.camera.container
+        );
 
         const grid = new Grid(
             20,
@@ -25,7 +37,7 @@ export class Battlefield {
 
         const gridRenderer = new GridRenderer(grid);
 
-        this.app.stage.addChild(
+        this.camera.container.addChild(
             gridRenderer.render()
         );
     }
