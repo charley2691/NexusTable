@@ -1,0 +1,29 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #111827;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.card {
+  padding: 40px;
+  border-radius: 12px;
+  background: #1f2937;
+  text-align: center;
+  width: 350px;
+}
+
+h1 {
+  margin-bottom: 30px;
+}
+
+.online {
+  color: #4ade80;
+}
+
+.offline {
+  color: #f87171;
+}
