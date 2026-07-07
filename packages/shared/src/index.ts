@@ -12,4 +12,5 @@ export interface Scene {
   id: string;
   name: string;
   entities: Entity[];
+  metadata: Record<string, unknown>;
 }
