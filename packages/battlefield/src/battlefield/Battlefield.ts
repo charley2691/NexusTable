@@ -6,6 +6,8 @@ import { CameraController } from "../camera/CameraController";
 import { AssetManager } from "../assets/AssetManager";
 import { SceneRenderer } from "../renderer/SceneRenderer";
 import { SelectionManager } from "../selection/SelectionManager";
+import { InputManager } from "../input/InputManager";
+import { PixiInputAdapter } from "../input/PixiInputAdapter";
 
 export class Battlefield {
     private app: Application;
@@ -13,6 +15,8 @@ export class Battlefield {
     private assetManager: AssetManager;
     private eventBus: EventBus;
     private selectionManager: SelectionManager;
+    private inputManager: InputManager;
+    private inputAdapter?: PixiInputAdapter;
     private sceneRenderer: SceneRenderer;
 
     constructor() {
@@ -23,6 +27,9 @@ export class Battlefield {
 
         this.selectionManager =
             new SelectionManager(this.eventBus);
+
+        this.inputManager =
+            new InputManager(this.eventBus);
 
         this.sceneRenderer =
             new SceneRenderer(
@@ -50,6 +57,14 @@ export class Battlefield {
             this.camera.container
         );
 
+        this.inputAdapter =
+            new PixiInputAdapter(
+                this.app.stage,
+                this.inputManager
+            );
+
+        this.inputAdapter.initialize();
+
         this.camera.container.addChild(
             this.sceneRenderer.getContainer()
         );
@@ -60,6 +75,14 @@ export class Battlefield {
 
         this.eventBus.on("selection.cleared", (event) => {
             console.log("Selection cleared:", event);
+        });
+
+        this.eventBus.on("input.pointer.down", (event) => {
+            console.log("Pointer Down", event);
+        });
+
+        this.eventBus.on("input.pointer.up", (event) => {
+            console.log("Pointer Up", event);
         });
 
         await this.sceneRenderer.render(

@@ -32,17 +32,9 @@ export class SceneRenderer {
                 this.selection
             );
 
-        this.container.addChild(
-            this.mapLayer.getContainer()
-        );
-
-        this.container.addChild(
-            this.gridLayer.getContainer()
-        );
-
-        this.container.addChild(
-            this.tokenLayer.getContainer()
-        );
+        this.container.addChild(this.mapLayer.getContainer());
+        this.container.addChild(this.gridLayer.getContainer());
+        this.container.addChild(this.tokenLayer.getContainer());
     }
 
     getContainer(): Container {
@@ -51,24 +43,10 @@ export class SceneRenderer {
 
     async render(scene: Scene): Promise<void> {
         const grid = this.getGridFromScene(scene);
-        const gridWorld = new GridWorld(grid.cellSize);
 
         await this.mapLayer.render(scene.map);
 
         this.gridLayer.render(grid);
-
-        this.tokenLayer.clear();
-
-        this.tokenLayer =
-            new TokenLayer(
-                gridWorld,
-                this.assets,
-                this.selection
-            );
-
-        this.container.addChild(
-            this.tokenLayer.getContainer()
-        );
 
         await this.tokenLayer.render(
             scene.entities

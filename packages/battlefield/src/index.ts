@@ -13,3 +13,6 @@ export * from "./renderer/layers/GridLayer";
 export * from "./renderer/layers/TokenLayer";
 export * from "./renderer/layers/MapLayer";
 export * from "./selection/SelectionManager";
+export * from "./input/InputTypes";
+export * from "./input/InputManager";
+export * from "./input/PixiInputAdapter";
