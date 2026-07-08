@@ -15,9 +15,9 @@ export class Battlefield {
         this.app = new Application();
         this.camera = new Camera();
         this.assetManager = new AssetManager();
-        this.sceneRenderer = new SceneRenderer(
-            this.assetManager
-        );
+
+        this.sceneRenderer =
+            new SceneRenderer(this.assetManager);
     }
 
     async initialize(container: HTMLElement) {
@@ -55,6 +55,13 @@ export class Battlefield {
             name: "Test Token",
             path: "/assets/tokens/test-token.png"
         });
+
+        this.assetManager.register({
+            id: "demo-map",
+            type: "map",
+            name: "Demo Map",
+            path: "/assets/maps/demo-map.jpg"
+        });
     }
 
     private createDemoScene(): Scene {
@@ -91,35 +98,46 @@ export class Battlefield {
         };
 
         return {
-    version: 1,
+            version: 1,
 
-    id: "demo-scene",
+            id: "demo-scene",
 
-    name: "Demo Battlefield",
+            name: "Demo Battlefield",
 
-    grid: {
-        width: 20,
-        height: 20,
-        cellSize: 50,
-        color: 0x555555,
-        opacity: 1,
-        visible: true
-    },
+            grid: {
+                width: 20,
+                height: 20,
+                cellSize: 50,
+                color: 0x555555,
+                opacity: 1,
+                visible: true
+            },
 
-    camera: {
-        zoom: 1,
-        position: {
-            x: 0,
-            y: 0
-        }
-    },
+            camera: {
+                zoom: 1,
+                position: {
+                    x: 0,
+                    y: 0
+                }
+            },
 
-    entities: [
-        player,
-        monster
-    ],
+            map: {
+                assetId: "demo-map",
+                x: 0,
+                y: 0,
+                width: 1000,
+                height: 1000,
+                rotation: 0,
+                visible: true,
+                opacity: 1
+            },
 
-    metadata: {}
-};
+            entities: [
+                player,
+                monster
+            ],
+
+            metadata: {}
+        };
     }
 }

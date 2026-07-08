@@ -3,12 +3,14 @@ import { Scene } from "@nexustable/shared";
 import { AssetManager } from "../assets/AssetManager";
 import { Grid } from "../grid/Grid";
 import { GridWorld } from "../grid/GridWorld";
+import { MapLayer } from "./layers/MapLayer";
 import { GridLayer } from "./layers/GridLayer";
 import { TokenLayer } from "./layers/TokenLayer";
 
 export class SceneRenderer {
     private container = new Container();
 
+    private mapLayer: MapLayer;
     private gridLayer: GridLayer;
     private tokenLayer: TokenLayer;
 
@@ -18,6 +20,7 @@ export class SceneRenderer {
         const grid = this.getDefaultGrid();
         const gridWorld = new GridWorld(grid.cellSize);
 
+        this.mapLayer = new MapLayer(this.assets);
         this.gridLayer = new GridLayer();
 
         this.tokenLayer =
@@ -25,6 +28,10 @@ export class SceneRenderer {
                 gridWorld,
                 this.assets
             );
+
+        this.container.addChild(
+            this.mapLayer.getContainer()
+        );
 
         this.container.addChild(
             this.gridLayer.getContainer()
@@ -43,7 +50,11 @@ export class SceneRenderer {
         const grid = this.getGridFromScene(scene);
         const gridWorld = new GridWorld(grid.cellSize);
 
+        await this.mapLayer.render(scene.map);
+
         this.gridLayer.render(grid);
+
+        this.tokenLayer.clear();
 
         this.tokenLayer =
             new TokenLayer(
@@ -61,18 +72,10 @@ export class SceneRenderer {
     }
 
     private getGridFromScene(scene: Scene): Grid {
-        const gridMetadata = scene.metadata.grid as
-            | {
-                width?: number;
-                height?: number;
-                cellSize?: number;
-            }
-            | undefined;
-
         return new Grid(
-            gridMetadata?.width ?? 20,
-            gridMetadata?.height ?? 20,
-            gridMetadata?.cellSize ?? 50
+            scene.grid.width,
+            scene.grid.height,
+            scene.grid.cellSize
         );
     }
 
