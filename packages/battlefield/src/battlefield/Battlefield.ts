@@ -1,5 +1,6 @@
 import { Application } from "pixi.js";
 import { Entity, Scene } from "@nexustable/shared";
+import { EventBus } from "@nexustable/game-engine";
 import { Camera } from "../camera/Camera";
 import { CameraController } from "../camera/CameraController";
 import { AssetManager } from "../assets/AssetManager";
@@ -9,15 +10,20 @@ export class Battlefield {
     private app: Application;
     private camera: Camera;
     private assetManager: AssetManager;
+    private eventBus: EventBus;
     private sceneRenderer: SceneRenderer;
 
     constructor() {
         this.app = new Application();
         this.camera = new Camera();
         this.assetManager = new AssetManager();
+        this.eventBus = new EventBus();
 
         this.sceneRenderer =
-            new SceneRenderer(this.assetManager);
+            new SceneRenderer(
+                this.assetManager,
+                this.eventBus
+            );
     }
 
     async initialize(container: HTMLElement) {
@@ -42,6 +48,10 @@ export class Battlefield {
         this.camera.container.addChild(
             this.sceneRenderer.getContainer()
         );
+
+        this.eventBus.on("entity.selected", (event) => {
+            console.log("Entity selected:", event);
+        });
 
         await this.sceneRenderer.render(
             this.createDemoScene()

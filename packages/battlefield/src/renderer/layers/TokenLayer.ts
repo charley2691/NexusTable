@@ -1,5 +1,6 @@
 import { Container, Graphics } from "pixi.js";
 import { Entity } from "@nexustable/shared";
+import { EventBus } from "@nexustable/game-engine";
 import { AssetManager } from "../../assets/AssetManager";
 import { EntityRenderer } from "../../entities/EntityRenderer";
 import { GridWorld } from "../../grid/GridWorld";
@@ -11,7 +12,8 @@ export class TokenLayer extends Layer {
 
     constructor(
         private gridWorld: GridWorld,
-        private assets: AssetManager
+        private assets: AssetManager,
+        private eventBus: EventBus
     ) {
         super();
     }
@@ -33,7 +35,7 @@ export class TokenLayer extends Layer {
                 await renderer.renderEntity(
                     entity,
                     selectedEntity => {
-                        this.selectEntity(selectedEntity.id);
+                        this.selectEntity(selectedEntity);
                     }
                 );
 
@@ -46,8 +48,13 @@ export class TokenLayer extends Layer {
         }
     }
 
-    private selectEntity(entityId: string): void {
-        this.selectedEntityId = entityId;
+    private selectEntity(entity: Entity): void {
+        this.selectedEntityId = entity.id;
+
+        this.eventBus.emit("entity.selected", {
+            entityId: entity.id,
+            entity
+        });
 
         this.redrawSelection();
     }
