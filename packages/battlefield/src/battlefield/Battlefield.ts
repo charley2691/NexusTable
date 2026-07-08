@@ -91,19 +91,35 @@ export class Battlefield {
         };
 
         return {
-            id: "demo-scene",
-            name: "Demo Battlefield",
-            metadata: {
-                grid: {
-                    width: 20,
-                    height: 20,
-                    cellSize: 50
-                }
-            },
-            entities: [
-                player,
-                monster
-            ]
-        };
+    version: 1,
+
+    id: "demo-scene",
+
+    name: "Demo Battlefield",
+
+    grid: {
+        width: 20,
+        height: 20,
+        cellSize: 50,
+        color: 0x555555,
+        opacity: 1,
+        visible: true
+    },
+
+    camera: {
+        zoom: 1,
+        position: {
+            x: 0,
+            y: 0
+        }
+    },
+
+    entities: [
+        player,
+        monster
+    ],
+
+    metadata: {}
+};
     }
 }

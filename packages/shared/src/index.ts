@@ -1,45 +1,12 @@
-export interface Entity {
-  id: string;
-  components: Component[];
-}
+export * from "./entity/Component";
+export * from "./entity/Entity";
 
+export * from "./world/Position";
+export * from "./world/GridPosition";
 
-export interface Component {
-  type: string;
-  data: Record<string, unknown>;
-}
+export * from "./scene/GridSettings";
+export * from "./scene/CameraSettings";
+export * from "./scene/MapReference";
+export * from "./scene/Scene";
 
-
-export interface Scene {
-  id: string;
-  name: string;
-  entities: Entity[];
-  metadata: Record<string, unknown>;
-}
-
-
-export interface Position {
-  x: number;
-  y: number;
-}
-
-
-export interface GridPosition {
-  x: number;
-  y: number;
-}
-
-
-export type AssetType =
-  | "map"
-  | "token"
-  | "icon"
-  | "effect"
-  | "audio";
-
-export interface Asset {
-  id: string;
-  type: AssetType;
-  name: string;
-  path: string;
-}
+export * from "./assets/Asset";
