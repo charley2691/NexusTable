@@ -1,74 +1,137 @@
-import { Scene, Entity } from "@nexustable/shared";
+import {
+    CameraSettings,
+    Entity,
+    GridSettings,
+    Scene
+} from "@nexustable/shared";
 
 export class SceneManager {
-  private scenes: Map<string, Scene> = new Map();
+    private scenes: Map<string, Scene> = new Map();
+    private currentSceneId?: string;
 
-  createScene(
-    name: string
-  ): Scene {
+    createScene(
+        name: string
+    ): Scene {
+        const scene: Scene = {
+            version: 1,
 
-    const scene: Scene = {
-      id: crypto.randomUUID(),
-      name,
-      entities: [],
-      metadata: {}
-    };
+            id: crypto.randomUUID(),
+            name,
 
-    this.scenes.set(
-      scene.id,
-      scene
-    );
+            grid: this.createDefaultGridSettings(),
 
-    return scene;
-  }
+            camera: this.createDefaultCameraSettings(),
 
+            entities: [],
 
-  getScene(
-    id: string
-  ): Scene | undefined {
+            metadata: {}
+        };
 
-    return this.scenes.get(id);
-  }
+        this.scenes.set(scene.id, scene);
+        this.currentSceneId = scene.id;
 
-
-  getAllScenes(): Scene[] {
-
-    return Array.from(
-      this.scenes.values()
-    );
-  }
-
-
-  addEntity(
-    sceneId: string,
-    entity: Entity
-  ): void {
-
-    const scene = this.scenes.get(sceneId);
-
-    if (!scene) {
-      throw new Error(
-        `Scene ${sceneId} does not exist`
-      );
+        return scene;
     }
 
-    scene.entities.push(entity);
-  }
+    setCurrentScene(
+        sceneId: string
+    ): void {
+        if (!this.scenes.has(sceneId)) {
+            throw new Error(
+                `Scene ${sceneId} does not exist`
+            );
+        }
 
+        this.currentSceneId = sceneId;
+    }
 
-  removeEntity(
-    sceneId: string,
-    entityId: string
-  ): void {
+    getCurrentScene(): Scene | undefined {
+        if (!this.currentSceneId) {
+            return undefined;
+        }
 
-    const scene = this.scenes.get(sceneId);
+        return this.scenes.get(this.currentSceneId);
+    }
 
-    if (!scene) return;
+    getScene(
+        id: string
+    ): Scene | undefined {
+        return this.scenes.get(id);
+    }
 
-    scene.entities =
-      scene.entities.filter(
-        entity =>
-          entity.id !== entityId
-      );
-  }
+    getAllScenes(): Scene[] {
+        return Array.from(
+            this.scenes.values()
+        );
+    }
+
+    addEntity(
+        sceneId: string,
+        entity: Entity
+    ): void {
+        const scene = this.scenes.get(sceneId);
+
+        if (!scene) {
+            throw new Error(
+                `Scene ${sceneId} does not exist`
+            );
+        }
+
+        scene.entities.push(entity);
+    }
+
+    updateEntity(
+        sceneId: string,
+        entity: Entity
+    ): void {
+        const scene = this.scenes.get(sceneId);
+
+        if (!scene) return;
+
+        const index =
+            scene.entities.findIndex(
+                existing =>
+                    existing.id === entity.id
+            );
+
+        if (index === -1) return;
+
+        scene.entities[index] = entity;
+    }
+
+    removeEntity(
+        sceneId: string,
+        entityId: string
+    ): void {
+        const scene = this.scenes.get(sceneId);
+
+        if (!scene) return;
+
+        scene.entities =
+            scene.entities.filter(
+                entity =>
+                    entity.id !== entityId
+            );
+    }
+
+    private createDefaultGridSettings(): GridSettings {
+        return {
+            width: 20,
+            height: 20,
+            cellSize: 50,
+            color: 0x555555,
+            opacity: 1,
+            visible: true
+        };
+    }
+
+    private createDefaultCameraSettings(): CameraSettings {
+        return {
+            zoom: 1,
+            position: {
+                x: 0,
+                y: 0
+            }
+        };
+    }
 }

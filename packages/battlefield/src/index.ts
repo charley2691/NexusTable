@@ -17,3 +17,4 @@ export * from "./input/InputTypes";
 export * from "./input/InputManager";
 export * from "./input/PixiInputAdapter";
 export * from "./interaction/InteractionManager";
+export * from "./grid/GridCoordinateConverter";
