@@ -9,7 +9,10 @@ export class EntityRenderer {
         private assetManager: AssetManager
     ) {}
 
-    async renderEntity(entity: Entity): Promise<Container> {
+    async renderEntity(
+        entity: Entity,
+        onSelect?: (entity: Entity) => void
+    ): Promise<Container> {
         const container = new Container();
 
         const position = entity.components.find(
@@ -28,6 +31,16 @@ export class EntityRenderer {
                 x: data.x,
                 y: data.y
             });
+
+        container.x = worldPosition.x;
+        container.y = worldPosition.y;
+
+        container.eventMode = "static";
+        container.cursor = "pointer";
+
+        container.on("pointerdown", () => {
+            onSelect?.(entity);
+        });
 
         const spriteComponent = entity.components.find(
             component => component.type === "sprite"
@@ -52,9 +65,6 @@ export class EntityRenderer {
                     sprite.width = this.gridWorld.cellSize;
                     sprite.height = this.gridWorld.cellSize;
 
-                    sprite.x = worldPosition.x;
-                    sprite.y = worldPosition.y;
-
                     container.addChild(sprite);
 
                     return container;
@@ -71,8 +81,8 @@ export class EntityRenderer {
         const token = new Graphics();
 
         token.circle(
-            worldPosition.x + this.gridWorld.cellSize / 2,
-            worldPosition.y + this.gridWorld.cellSize / 2,
+            this.gridWorld.cellSize / 2,
+            this.gridWorld.cellSize / 2,
             this.gridWorld.cellSize * 0.4
         );
 
