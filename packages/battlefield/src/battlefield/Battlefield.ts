@@ -5,12 +5,14 @@ import { Camera } from "../camera/Camera";
 import { CameraController } from "../camera/CameraController";
 import { AssetManager } from "../assets/AssetManager";
 import { SceneRenderer } from "../renderer/SceneRenderer";
+import { SelectionManager } from "../selection/SelectionManager";
 
 export class Battlefield {
     private app: Application;
     private camera: Camera;
     private assetManager: AssetManager;
     private eventBus: EventBus;
+    private selectionManager: SelectionManager;
     private sceneRenderer: SceneRenderer;
 
     constructor() {
@@ -19,10 +21,13 @@ export class Battlefield {
         this.assetManager = new AssetManager();
         this.eventBus = new EventBus();
 
+        this.selectionManager =
+            new SelectionManager(this.eventBus);
+
         this.sceneRenderer =
             new SceneRenderer(
                 this.assetManager,
-                this.eventBus
+                this.selectionManager
             );
     }
 
@@ -51,6 +56,10 @@ export class Battlefield {
 
         this.eventBus.on("entity.selected", (event) => {
             console.log("Entity selected:", event);
+        });
+
+        this.eventBus.on("selection.cleared", (event) => {
+            console.log("Selection cleared:", event);
         });
 
         await this.sceneRenderer.render(

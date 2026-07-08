@@ -1,9 +1,9 @@
 import { Container } from "pixi.js";
 import { Scene } from "@nexustable/shared";
-import { EventBus } from "@nexustable/game-engine";
 import { AssetManager } from "../assets/AssetManager";
 import { Grid } from "../grid/Grid";
 import { GridWorld } from "../grid/GridWorld";
+import { SelectionManager } from "../selection/SelectionManager";
 import { MapLayer } from "./layers/MapLayer";
 import { GridLayer } from "./layers/GridLayer";
 import { TokenLayer } from "./layers/TokenLayer";
@@ -17,7 +17,7 @@ export class SceneRenderer {
 
     constructor(
         private assets: AssetManager,
-        private eventBus: EventBus
+        private selection: SelectionManager
     ) {
         const grid = this.getDefaultGrid();
         const gridWorld = new GridWorld(grid.cellSize);
@@ -29,7 +29,7 @@ export class SceneRenderer {
             new TokenLayer(
                 gridWorld,
                 this.assets,
-                this.eventBus
+                this.selection
             );
 
         this.container.addChild(
@@ -63,7 +63,7 @@ export class SceneRenderer {
             new TokenLayer(
                 gridWorld,
                 this.assets,
-                this.eventBus
+                this.selection
             );
 
         this.container.addChild(

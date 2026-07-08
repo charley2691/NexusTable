@@ -12,3 +12,4 @@ export * from "./renderer/layers/Layer";
 export * from "./renderer/layers/GridLayer";
 export * from "./renderer/layers/TokenLayer";
 export * from "./renderer/layers/MapLayer";
+export * from "./selection/SelectionManager";

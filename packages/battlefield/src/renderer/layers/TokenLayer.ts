@@ -1,19 +1,18 @@
 import { Container, Graphics } from "pixi.js";
 import { Entity } from "@nexustable/shared";
-import { EventBus } from "@nexustable/game-engine";
 import { AssetManager } from "../../assets/AssetManager";
 import { EntityRenderer } from "../../entities/EntityRenderer";
 import { GridWorld } from "../../grid/GridWorld";
+import { SelectionManager } from "../../selection/SelectionManager";
 import { Layer } from "./Layer";
 
 export class TokenLayer extends Layer {
-    private selectedEntityId?: string;
     private tokenContainers = new Map<string, Container>();
 
     constructor(
         private gridWorld: GridWorld,
         private assets: AssetManager,
-        private eventBus: EventBus
+        private selection: SelectionManager
     ) {
         super();
     }
@@ -35,7 +34,8 @@ export class TokenLayer extends Layer {
                 await renderer.renderEntity(
                     entity,
                     selectedEntity => {
-                        this.selectEntity(selectedEntity);
+                        this.selection.select(selectedEntity);
+                        this.redrawSelection();
                     }
                 );
 
@@ -46,15 +46,6 @@ export class TokenLayer extends Layer {
 
             this.container.addChild(tokenContainer);
         }
-    }
-
-    private selectEntity(entity: Entity): void {
-        this.selectedEntityId = entity.id;
-
-        this.eventBus.emit("entity.selected", {
-            entityId: entity.id,
-            entity
-        });
 
         this.redrawSelection();
     }
@@ -68,7 +59,7 @@ export class TokenLayer extends Layer {
                 container.removeChild(oldSelection);
             }
 
-            if (entityId !== this.selectedEntityId) continue;
+            if (!this.selection.isSelected(entityId)) continue;
 
             const outline = new Graphics();
 
