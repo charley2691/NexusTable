@@ -1,23 +1,23 @@
 import { Application } from "pixi.js";
 import { Entity, Scene } from "@nexustable/shared";
-import { Grid } from "../grid/Grid";
-import { GridRenderer } from "../grid/GridRenderer";
-import { GridWorld } from "../grid/GridWorld";
 import { Camera } from "../camera/Camera";
 import { CameraController } from "../camera/CameraController";
-import { EntityRenderer } from "../entities/EntityRenderer";
-import { SceneGraph } from "../scene/SceneGraph";
 import { AssetManager } from "../assets/AssetManager";
+import { SceneRenderer } from "../renderer/SceneRenderer";
 
 export class Battlefield {
     private app: Application;
     private camera: Camera;
     private assetManager: AssetManager;
+    private sceneRenderer: SceneRenderer;
 
     constructor() {
         this.app = new Application();
         this.camera = new Camera();
         this.assetManager = new AssetManager();
+        this.sceneRenderer = new SceneRenderer(
+            this.assetManager
+        );
     }
 
     async initialize(container: HTMLElement) {
@@ -39,10 +39,13 @@ export class Battlefield {
             this.camera.container
         );
 
-        const scene = this.createDemoScene();
-        const sceneGraph = new SceneGraph(scene);
+        this.camera.container.addChild(
+            this.sceneRenderer.getContainer()
+        );
 
-        await this.renderScene(sceneGraph);
+        await this.sceneRenderer.render(
+            this.createDemoScene()
+        );
     }
 
     private registerDemoAssets() {
@@ -52,36 +55,6 @@ export class Battlefield {
             name: "Test Token",
             path: "/assets/tokens/test-token.png"
         });
-    }
-
-    private async renderScene(sceneGraph: SceneGraph) {
-        const grid = new Grid(
-            20,
-            20,
-            50
-        );
-
-        const gridWorld =
-            new GridWorld(grid.cellSize);
-
-        const gridRenderer =
-            new GridRenderer(grid);
-
-        this.camera.container.addChild(
-            gridRenderer.render()
-        );
-
-        const entityRenderer =
-            new EntityRenderer(
-                gridWorld,
-                this.assetManager
-            );
-
-        for (const entity of sceneGraph.getEntities()) {
-            this.camera.container.addChild(
-                await entityRenderer.renderEntity(entity)
-            );
-        }
     }
 
     private createDemoScene(): Scene {
