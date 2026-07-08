@@ -42,7 +42,8 @@ export class Battlefield {
         this.sceneRenderer =
             new SceneRenderer(
                 this.assetManager,
-                this.selectionManager
+                this.selectionManager,
+                this.eventBus
             );
     }
 
@@ -151,9 +152,7 @@ export class Battlefield {
 
         return {
             version: 1,
-
             id: "demo-scene",
-
             name: "Demo Battlefield",
 
             grid: {

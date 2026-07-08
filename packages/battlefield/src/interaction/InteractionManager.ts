@@ -1,6 +1,15 @@
 import { EventBus } from "@nexustable/game-engine";
 import { SelectionManager } from "../selection/SelectionManager";
 
+interface PointerEventData {
+    position: {
+        x: number;
+        y: number;
+    };
+    button: number | null;
+    isDown: boolean;
+}
+
 export class InteractionManager {
     private dragging = false;
 
@@ -26,26 +35,50 @@ export class InteractionManager {
         );
     }
 
-    private onPointerDown(): void {
-        if (!this.selection.getSelected()) {
+    private onPointerDown(event: unknown): void {
+        const data = event as PointerEventData;
+
+        if (data.button !== 0) {
+            return;
+        }
+
+        const selected =
+            this.selection.getSelected();
+
+        if (!selected) {
             return;
         }
 
         this.dragging = true;
 
-        console.log(
-            "Drag Started"
-        );
+        this.eventBus.emit("drag.started", {
+            entityId: selected.id,
+            x: data.position.x,
+            y: data.position.y
+        });
+
+        console.log("Drag Started");
     }
 
-    private onPointerMove(): void {
+    private onPointerMove(event: unknown): void {
         if (!this.dragging) {
             return;
         }
 
-        console.log(
-            "Dragging..."
-        );
+        const selected =
+            this.selection.getSelected();
+
+        if (!selected) {
+            return;
+        }
+
+        const data = event as PointerEventData;
+
+        this.eventBus.emit("drag.preview", {
+            entityId: selected.id,
+            x: data.position.x,
+            y: data.position.y
+        });
     }
 
     private onPointerUp(): void {
@@ -53,11 +86,18 @@ export class InteractionManager {
             return;
         }
 
+        const selected =
+            this.selection.getSelected();
+
+        if (selected) {
+            this.eventBus.emit("drag.finished", {
+                entityId: selected.id
+            });
+        }
+
         this.dragging = false;
 
-        console.log(
-            "Drag Finished"
-        );
+        console.log("Drag Finished");
     }
 
     isDragging(): boolean {

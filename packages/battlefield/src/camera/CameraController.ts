@@ -1,6 +1,3 @@
-import { FederatedPointerEvent } from "pixi.js";
-import { Camera } from "./Camera";
-
 export class CameraController {
     private dragging = false;
 
@@ -8,13 +5,26 @@ export class CameraController {
     private lastY = 0;
 
     constructor(
-        private camera: Camera,
+        private camera: {
+            container: {
+                x: number;
+                y: number;
+            };
+            setZoom(value: number): void;
+            getZoom(): number;
+        },
         private element: HTMLElement
     ) {
         this.setup();
     }
 
     private setup() {
+        this.element.addEventListener(
+            "contextmenu",
+            (event) => {
+                event.preventDefault();
+            }
+        );
 
         this.element.addEventListener(
             "wheel",
@@ -22,9 +32,7 @@ export class CameraController {
                 event.preventDefault();
 
                 const zoomChange =
-                    event.deltaY > 0
-                        ? -0.1
-                        : 0.1;
+                    event.deltaY > 0 ? -0.1 : 0.1;
 
                 this.camera.setZoom(
                     Math.max(
@@ -38,6 +46,12 @@ export class CameraController {
         this.element.addEventListener(
             "pointerdown",
             (event) => {
+                // Left mouse is reserved for token selection/dragging.
+                // Middle or right mouse pans the battlefield.
+                if (event.button !== 1 && event.button !== 2) {
+                    return;
+                }
+
                 this.dragging = true;
 
                 this.lastX = event.clientX;
@@ -53,16 +67,19 @@ export class CameraController {
         );
 
         this.element.addEventListener(
+            "pointerleave",
+            () => {
+                this.dragging = false;
+            }
+        );
+
+        this.element.addEventListener(
             "pointermove",
             (event) => {
-
                 if (!this.dragging) return;
 
-                const dx =
-                    event.clientX - this.lastX;
-
-                const dy =
-                    event.clientY - this.lastY;
+                const dx = event.clientX - this.lastX;
+                const dy = event.clientY - this.lastY;
 
                 this.camera.container.x += dx;
                 this.camera.container.y += dy;
