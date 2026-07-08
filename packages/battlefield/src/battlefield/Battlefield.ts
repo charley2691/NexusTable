@@ -8,6 +8,7 @@ import { SceneRenderer } from "../renderer/SceneRenderer";
 import { SelectionManager } from "../selection/SelectionManager";
 import { InputManager } from "../input/InputManager";
 import { PixiInputAdapter } from "../input/PixiInputAdapter";
+import { InteractionManager } from "../interaction/InteractionManager";
 
 export class Battlefield {
     private app: Application;
@@ -17,6 +18,7 @@ export class Battlefield {
     private selectionManager: SelectionManager;
     private inputManager: InputManager;
     private inputAdapter?: PixiInputAdapter;
+    private interactionManager: InteractionManager;
     private sceneRenderer: SceneRenderer;
 
     constructor() {
@@ -30,6 +32,12 @@ export class Battlefield {
 
         this.inputManager =
             new InputManager(this.eventBus);
+
+        this.interactionManager =
+            new InteractionManager(
+                this.eventBus,
+                this.selectionManager
+            );
 
         this.sceneRenderer =
             new SceneRenderer(
@@ -64,6 +72,8 @@ export class Battlefield {
             );
 
         this.inputAdapter.initialize();
+
+        this.interactionManager.initialize();
 
         this.camera.container.addChild(
             this.sceneRenderer.getContainer()

@@ -1,63 +1,66 @@
-import { Container, FederatedPointerEvent } from "pixi.js";
+import { EventBus } from "@nexustable/game-engine";
+import { SelectionManager } from "../selection/SelectionManager";
 
 export class InteractionManager {
+    private dragging = false;
 
     constructor(
-        private stage: Container
+        private eventBus: EventBus,
+        private selection: SelectionManager
     ) {}
 
     initialize(): void {
-
-        this.stage.eventMode = "static";
-
-        this.stage.on(
-            "pointerdown",
-            this.onPointerDown,
-            this
+        this.eventBus.on(
+            "input.pointer.down",
+            this.onPointerDown.bind(this)
         );
 
-        this.stage.on(
-            "pointermove",
-            this.onPointerMove,
-            this
+        this.eventBus.on(
+            "input.pointer.move",
+            this.onPointerMove.bind(this)
         );
 
-        this.stage.on(
-            "pointerup",
-            this.onPointerUp,
-            this
+        this.eventBus.on(
+            "input.pointer.up",
+            this.onPointerUp.bind(this)
         );
-
-        this.stage.on(
-            "pointerupoutside",
-            this.onPointerUp,
-            this
-        );
-
     }
 
-    private onPointerDown(
-        event: FederatedPointerEvent
-    ) {
+    private onPointerDown(): void {
+        if (!this.selection.getSelected()) {
+            return;
+        }
+
+        this.dragging = true;
+
         console.log(
-            "Pointer Down",
-            event.global
+            "Drag Started"
         );
     }
 
-    private onPointerMove(
-        event: FederatedPointerEvent
-    ) {
-        // Dragging comes next
-    }
+    private onPointerMove(): void {
+        if (!this.dragging) {
+            return;
+        }
 
-    private onPointerUp(
-        event: FederatedPointerEvent
-    ) {
         console.log(
-            "Pointer Up",
-            event.global
+            "Dragging..."
         );
     }
 
+    private onPointerUp(): void {
+        if (!this.dragging) {
+            return;
+        }
+
+        this.dragging = false;
+
+        console.log(
+            "Drag Finished"
+        );
+    }
+
+    isDragging(): boolean {
+        return this.dragging;
+    }
 }
