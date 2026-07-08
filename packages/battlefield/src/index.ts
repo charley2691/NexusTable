@@ -6,3 +6,4 @@ export * from "./camera/CameraController";
 export * from "./grid/GridWorld";
 export * from "./entities/EntityRenderer";
 export * from "./scene/SceneGraph";
+export * from "./assets/AssetManager";
