@@ -1,11 +1,12 @@
 import { Application } from "pixi.js";
-import { Entity } from "@nexustable/shared";
+import { Entity, Scene } from "@nexustable/shared";
 import { Grid } from "../grid/Grid";
 import { GridRenderer } from "../grid/GridRenderer";
 import { GridWorld } from "../grid/GridWorld";
 import { Camera } from "../camera/Camera";
 import { CameraController } from "../camera/CameraController";
 import { EntityRenderer } from "../entities/EntityRenderer";
+import { SceneGraph } from "../scene/SceneGraph";
 
 export class Battlefield {
     private app: Application;
@@ -33,24 +34,42 @@ export class Battlefield {
             this.camera.container
         );
 
+        const scene = this.createDemoScene();
+        const sceneGraph = new SceneGraph(scene);
+
+        this.renderScene(sceneGraph);
+    }
+
+    private renderScene(sceneGraph: SceneGraph) {
         const grid = new Grid(
             20,
             20,
             50
         );
 
-        const gridWorld = new GridWorld(
-            grid.cellSize
-        );
+        const gridWorld =
+            new GridWorld(grid.cellSize);
 
-        const gridRenderer = new GridRenderer(grid);
+        const gridRenderer =
+            new GridRenderer(grid);
 
         this.camera.container.addChild(
             gridRenderer.render()
         );
 
-        const testEntity: Entity = {
-            id: "test-token-1",
+        const entityRenderer =
+            new EntityRenderer(gridWorld);
+
+        for (const entity of sceneGraph.getEntities()) {
+            this.camera.container.addChild(
+                entityRenderer.renderEntity(entity)
+            );
+        }
+    }
+
+    private createDemoScene(): Scene {
+        const player: Entity = {
+            id: "player-token-1",
             components: [
                 {
                     type: "grid-position",
@@ -62,11 +81,33 @@ export class Battlefield {
             ]
         };
 
-        const entityRenderer =
-            new EntityRenderer(gridWorld);
+        const monster: Entity = {
+            id: "monster-token-1",
+            components: [
+                {
+                    type: "grid-position",
+                    data: {
+                        x: 10,
+                        y: 6
+                    }
+                }
+            ]
+        };
 
-        this.camera.container.addChild(
-            entityRenderer.renderEntity(testEntity)
-        );
+        return {
+            id: "demo-scene",
+            name: "Demo Battlefield",
+            metadata: {
+                grid: {
+                    width: 20,
+                    height: 20,
+                    cellSize: 50
+                }
+            },
+            entities: [
+                player,
+                monster
+            ]
+        };
     }
 }
