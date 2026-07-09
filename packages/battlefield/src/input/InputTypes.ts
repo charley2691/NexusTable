@@ -8,4 +8,5 @@ export interface PointerState {
     previousPosition: PointerPosition;
     isDown: boolean;
     button: number | null;
+    isBackground: boolean;
 }

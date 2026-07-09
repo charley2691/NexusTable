@@ -1,6 +1,6 @@
 import { Application } from "pixi.js";
-import { Entity, Scene } from "@nexustable/shared";
-import { EventBus } from "@nexustable/game-engine";
+import { Component, Entity, Scene } from "@nexustable/shared";
+import { EventBus, SceneManager } from "@nexustable/game-engine";
 import { Camera } from "../camera/Camera";
 import { CameraController } from "../camera/CameraController";
 import { AssetManager } from "../assets/AssetManager";
@@ -9,6 +9,7 @@ import { SelectionManager } from "../selection/SelectionManager";
 import { InputManager } from "../input/InputManager";
 import { PixiInputAdapter } from "../input/PixiInputAdapter";
 import { InteractionManager } from "../interaction/InteractionManager";
+import { GridCoordinateConverter } from "../grid/GridCoordinateConverter";
 
 export class Battlefield {
     private app: Application;
@@ -20,6 +21,8 @@ export class Battlefield {
     private inputAdapter?: PixiInputAdapter;
     private interactionManager: InteractionManager;
     private sceneRenderer: SceneRenderer;
+    private sceneManager: SceneManager;
+    private coordinateConverter?: GridCoordinateConverter;
 
     constructor() {
         this.app = new Application();
@@ -45,6 +48,9 @@ export class Battlefield {
                 this.selectionManager,
                 this.eventBus
             );
+
+        this.sceneManager =
+            new SceneManager();
     }
 
     async initialize(container: HTMLElement) {
@@ -80,25 +86,73 @@ export class Battlefield {
             this.sceneRenderer.getContainer()
         );
 
-        this.eventBus.on("entity.selected", (event) => {
-            console.log("Entity selected:", event);
+        const scene = this.createDemoScene();
+
+        this.sceneManager.addScene(scene);
+        this.sceneManager.setCurrentScene(scene.id);
+
+        this.coordinateConverter =
+            new GridCoordinateConverter(
+                this.sceneRenderer.getContainer(),
+                scene.grid.cellSize
+            );
+
+        this.eventBus.on("drag.finished", async (event) => {
+            await this.handleDragFinished(event);
         });
 
-        this.eventBus.on("selection.cleared", (event) => {
-            console.log("Selection cleared:", event);
-        });
+        await this.sceneRenderer.render(scene);
+    }
 
-        this.eventBus.on("input.pointer.down", (event) => {
-            console.log("Pointer Down", event);
-        });
+    private async handleDragFinished(event: unknown): Promise<void> {
+        const data = event as {
+            entityId: string;
+            x: number;
+            y: number;
+        };
 
-        this.eventBus.on("input.pointer.up", (event) => {
-            console.log("Pointer Up", event);
-        });
+        const scene =
+            this.sceneManager.getCurrentScene();
 
-        await this.sceneRenderer.render(
-            this.createDemoScene()
+        if (!scene || !this.coordinateConverter) return;
+
+        const entity =
+            this.sceneManager.getEntity(
+                scene.id,
+                data.entityId
+            );
+
+        if (!entity) return;
+
+        const gridPosition =
+            this.coordinateConverter.screenToGrid({
+                x: data.x,
+                y: data.y
+            });
+
+        const updatedEntity: Entity = {
+            ...entity,
+            components: entity.components.map((component: Component) => {
+                if (component.type !== "grid-position") {
+                    return component;
+                }
+
+                return {
+                    ...component,
+                    data: {
+                        x: gridPosition.x,
+                        y: gridPosition.y
+                    }
+                };
+            })
+        };
+
+        this.sceneManager.updateEntity(
+            scene.id,
+            updatedEntity
         );
+
+        await this.sceneRenderer.render(scene);
     }
 
     private registerDemoAssets() {

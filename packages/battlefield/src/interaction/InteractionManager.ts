@@ -8,6 +8,7 @@ interface PointerEventData {
     };
     button: number | null;
     isDown: boolean;
+    isBackground: boolean;
 }
 
 export class InteractionManager {
@@ -38,16 +39,16 @@ export class InteractionManager {
     private onPointerDown(event: unknown): void {
         const data = event as PointerEventData;
 
-        if (data.button !== 0) {
+        if (data.button !== 0) return;
+
+        if (data.isBackground) {
+            this.selection.clear();
             return;
         }
 
-        const selected =
-            this.selection.getSelected();
+        const selected = this.selection.getSelected();
 
-        if (!selected) {
-            return;
-        }
+        if (!selected) return;
 
         this.dragging = true;
 
@@ -56,21 +57,14 @@ export class InteractionManager {
             x: data.position.x,
             y: data.position.y
         });
-
-        console.log("Drag Started");
     }
 
     private onPointerMove(event: unknown): void {
-        if (!this.dragging) {
-            return;
-        }
+        if (!this.dragging) return;
 
-        const selected =
-            this.selection.getSelected();
+        const selected = this.selection.getSelected();
 
-        if (!selected) {
-            return;
-        }
+        if (!selected) return;
 
         const data = event as PointerEventData;
 
@@ -81,23 +75,22 @@ export class InteractionManager {
         });
     }
 
-    private onPointerUp(): void {
-        if (!this.dragging) {
-            return;
-        }
+    private onPointerUp(event: unknown): void {
+        if (!this.dragging) return;
 
-        const selected =
-            this.selection.getSelected();
+        const selected = this.selection.getSelected();
 
-        if (selected) {
-            this.eventBus.emit("drag.finished", {
-                entityId: selected.id
-            });
-        }
+        if (!selected) return;
+
+        const data = event as PointerEventData;
+
+        this.eventBus.emit("drag.finished", {
+            entityId: selected.id,
+            x: data.position.x,
+            y: data.position.y
+        });
 
         this.dragging = false;
-
-        console.log("Drag Finished");
     }
 
     isDragging(): boolean {

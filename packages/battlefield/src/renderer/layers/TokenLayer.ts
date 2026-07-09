@@ -61,6 +61,10 @@ export class TokenLayer extends Layer {
 
             this.dragOffsets.delete(data.entityId);
         });
+
+        this.eventBus.on("selection.cleared", () => {
+            this.redrawSelection();
+        });
     }
 
     async render(

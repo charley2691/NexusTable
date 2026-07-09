@@ -12,7 +12,8 @@ export class InputManager {
             y: 0
         },
         isDown: false,
-        button: null
+        button: null,
+        isBackground: false
     };
 
     constructor(
@@ -20,19 +21,21 @@ export class InputManager {
     ) {}
 
     pointerDown(
-        x: number,
-        y: number,
-        button: number
-    ): void {
-        this.updatePosition(x, y);
+    x: number,
+    y: number,
+    button: number,
+    isBackground: boolean
+): void {
+    this.updatePosition(x, y);
 
-        this.pointerState.isDown = true;
-        this.pointerState.button = button;
+    this.pointerState.isDown = true;
+    this.pointerState.button = button;
+    this.pointerState.isBackground = isBackground;
 
-        this.eventBus.emit("input.pointer.down", {
-            ...this.pointerState
-        });
-    }
+    this.eventBus.emit("input.pointer.down", {
+        ...this.pointerState
+    });
+}
 
     pointerMove(
         x: number,

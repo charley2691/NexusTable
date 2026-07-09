@@ -27,10 +27,17 @@ export class SceneManager {
             metadata: {}
         };
 
-        this.scenes.set(scene.id, scene);
-        this.currentSceneId = scene.id;
+        this.addScene(scene);
 
         return scene;
+    }
+
+    addScene(scene: Scene): void {
+        this.scenes.set(scene.id, scene);
+
+        if (!this.currentSceneId) {
+            this.currentSceneId = scene.id;
+        }
     }
 
     setCurrentScene(
@@ -62,6 +69,17 @@ export class SceneManager {
     getAllScenes(): Scene[] {
         return Array.from(
             this.scenes.values()
+        );
+    }
+
+    getEntity(
+        sceneId: string,
+        entityId: string
+    ): Entity | undefined {
+        const scene = this.scenes.get(sceneId);
+
+        return scene?.entities.find(
+            entity => entity.id === entityId
         );
     }
 

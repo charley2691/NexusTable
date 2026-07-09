@@ -1,4 +1,8 @@
-import { Container, FederatedPointerEvent } from "pixi.js";
+import {
+    Container,
+    FederatedPointerEvent,
+    Rectangle
+} from "pixi.js";
 import { InputManager } from "./InputManager";
 
 export class PixiInputAdapter {
@@ -9,6 +13,13 @@ export class PixiInputAdapter {
 
     initialize(): void {
         this.target.eventMode = "static";
+
+        this.target.hitArea = new Rectangle(
+            -100000,
+            -100000,
+            200000,
+            200000
+        );
 
         this.target.on(
             "pointerdown",
@@ -38,10 +49,14 @@ export class PixiInputAdapter {
     private onPointerDown(
         event: FederatedPointerEvent
     ): void {
+        const isBackground =
+            !this.isTokenTarget(event.target);
+
         this.input.pointerDown(
             event.global.x,
             event.global.y,
-            event.button
+            event.button,
+            isBackground
         );
     }
 
@@ -61,5 +76,19 @@ export class PixiInputAdapter {
             event.global.x,
             event.global.y
         );
+    }
+
+    private isTokenTarget(target: unknown): boolean {
+        let current = target as Container | null;
+
+        while (current) {
+            if (current.name === "entity-token") {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
     }
 }

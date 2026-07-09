@@ -15,6 +15,10 @@ export class EntityRenderer {
     ): Promise<Container> {
         const container = new Container();
 
+        container.name = "entity-token";
+        container.eventMode = "static";
+        container.cursor = "pointer";
+
         const position = entity.components.find(
             component => component.type === "grid-position"
         );
@@ -34,9 +38,6 @@ export class EntityRenderer {
 
         container.x = worldPosition.x;
         container.y = worldPosition.y;
-
-        container.eventMode = "static";
-        container.cursor = "pointer";
 
         container.on("pointerdown", () => {
             onSelect?.(entity);
