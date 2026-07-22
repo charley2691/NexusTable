@@ -53,7 +53,7 @@ export class Battlefield {
             new SceneManager();
     }
 
-    async initialize(container: HTMLElement) {
+    async initialize(container: HTMLElement): Promise<void> {
         await this.app.init({
             background: "#1a1a1a",
             resizeTo: container
@@ -86,25 +86,45 @@ export class Battlefield {
             this.sceneRenderer.getContainer()
         );
 
-        const scene = this.createDemoScene();
+        const demoScene = this.createDemoScene(
+            "demo-scene",
+            "Demo Battlefield",
+            5,
+            4,
+            10,
+            6
+        );
 
-        this.sceneManager.addScene(scene);
-        this.sceneManager.setCurrentScene(scene.id);
+        const forestScene = this.createDemoScene(
+            "forgotten-forest",
+            "Forgotten Forest",
+            3,
+            8,
+            14,
+            5
+        );
 
-        this.coordinateConverter =
-            new GridCoordinateConverter(
-                this.sceneRenderer.getContainer(),
-                scene.grid.cellSize
-            );
+        const villageScene = this.createDemoScene(
+            "village-square",
+            "Village Square",
+            8,
+            12,
+            12,
+            10
+        );
+
+        this.sceneManager.addScene(demoScene);
+        this.sceneManager.addScene(forestScene);
+        this.sceneManager.addScene(villageScene);
 
         this.eventBus.on("drag.finished", async (event) => {
             await this.handleDragFinished(event);
         });
 
-        await this.sceneRenderer.render(scene);
+        await this.loadScene(demoScene.id);
     }
 
-        public getSceneManager(): SceneManager {
+    public getSceneManager(): SceneManager {
         return this.sceneManager;
     }
 
@@ -120,7 +140,30 @@ export class Battlefield {
         return this.assetManager;
     }
 
-    private async handleDragFinished(event: unknown): Promise<void> {
+    public async loadScene(sceneId: string): Promise<boolean> {
+        this.sceneManager.setCurrentScene(sceneId);
+
+        const scene =
+            this.sceneManager.getCurrentScene();
+
+        if (!scene || scene.id !== sceneId) {
+            return false;
+        }
+
+        this.coordinateConverter =
+            new GridCoordinateConverter(
+                this.sceneRenderer.getContainer(),
+                scene.grid.cellSize
+            );
+
+        await this.sceneRenderer.render(scene);
+
+        return true;
+    }
+
+    private async handleDragFinished(
+        event: unknown
+    ): Promise<void> {
         const data = event as {
             entityId: string;
             x: number;
@@ -130,7 +173,9 @@ export class Battlefield {
         const scene =
             this.sceneManager.getCurrentScene();
 
-        if (!scene || !this.coordinateConverter) return;
+        if (!scene || !this.coordinateConverter) {
+            return;
+        }
 
         const entity =
             this.sceneManager.getEntity(
@@ -138,7 +183,9 @@ export class Battlefield {
                 data.entityId
             );
 
-        if (!entity) return;
+        if (!entity) {
+            return;
+        }
 
         const gridPosition =
             this.coordinateConverter.screenToGrid({
@@ -148,19 +195,24 @@ export class Battlefield {
 
         const updatedEntity: Entity = {
             ...entity,
-            components: entity.components.map((component: Component) => {
-                if (component.type !== "grid-position") {
-                    return component;
-                }
-
-                return {
-                    ...component,
-                    data: {
-                        x: gridPosition.x,
-                        y: gridPosition.y
+            components: entity.components.map(
+                (component: Component) => {
+                    if (
+                        component.type !==
+                        "grid-position"
+                    ) {
+                        return component;
                     }
-                };
-            })
+
+                    return {
+                        ...component,
+                        data: {
+                            x: gridPosition.x,
+                            y: gridPosition.y
+                        }
+                    };
+                }
+            )
         };
 
         this.sceneManager.updateEntity(
@@ -168,10 +220,19 @@ export class Battlefield {
             updatedEntity
         );
 
-        await this.sceneRenderer.render(scene);
+        const updatedScene =
+            this.sceneManager.getCurrentScene();
+
+        if (!updatedScene) {
+            return;
+        }
+
+        await this.sceneRenderer.render(
+            updatedScene
+        );
     }
 
-    private registerDemoAssets() {
+    private registerDemoAssets(): void {
         this.assetManager.register({
             id: "test-token",
             type: "token",
@@ -187,15 +248,22 @@ export class Battlefield {
         });
     }
 
-    private createDemoScene(): Scene {
+    private createDemoScene(
+        id: string,
+        name: string,
+        playerX: number,
+        playerY: number,
+        monsterX: number,
+        monsterY: number
+    ): Scene {
         const player: Entity = {
-            id: "player-token-1",
+            id: `${id}-player-token`,
             components: [
                 {
                     type: "grid-position",
                     data: {
-                        x: 5,
-                        y: 4
+                        x: playerX,
+                        y: playerY
                     }
                 },
                 {
@@ -208,13 +276,13 @@ export class Battlefield {
         };
 
         const monster: Entity = {
-            id: "monster-token-1",
+            id: `${id}-monster-token`,
             components: [
                 {
                     type: "grid-position",
                     data: {
-                        x: 10,
-                        y: 6
+                        x: monsterX,
+                        y: monsterY
                     }
                 }
             ]
@@ -222,8 +290,8 @@ export class Battlefield {
 
         return {
             version: 1,
-            id: "demo-scene",
-            name: "Demo Battlefield",
+            id,
+            name,
 
             grid: {
                 width: 20,

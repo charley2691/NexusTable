@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { NexusClient } from "../../../core/NexusClient";
 import { SidebarSection } from "../SidebarSection";
 
@@ -12,13 +13,50 @@ export function ScenePanel({
 }: ScenePanelProps) {
   const sceneManager = client.getSceneManager();
 
+  const [activeSceneId, setActiveSceneId] =
+    useState<string | null>(null);
+
+  const [loadingSceneId, setLoadingSceneId] =
+    useState<string | null>(null);
+
   const scenes = clientReady
     ? sceneManager.getAllScenes()
     : [];
 
-  const currentScene = clientReady
-    ? sceneManager.getCurrentScene()
-    : null;
+  useEffect(() => {
+    if (!clientReady) {
+      setActiveSceneId(null);
+      return;
+    }
+
+    const currentScene =
+      sceneManager.getCurrentScene();
+
+    setActiveSceneId(currentScene?.id ?? null);
+  }, [clientReady, sceneManager]);
+
+  const handleSceneClick = async (
+    sceneId: string,
+  ): Promise<void> => {
+    if (
+      sceneId === activeSceneId ||
+      loadingSceneId !== null
+    ) {
+      return;
+    }
+
+    setLoadingSceneId(sceneId);
+
+    try {
+      const loaded = await client.loadScene(sceneId);
+
+      if (loaded) {
+        setActiveSceneId(sceneId);
+      }
+    } finally {
+      setLoadingSceneId(null);
+    }
+  };
 
   return (
     <SidebarSection title="Scenes">
@@ -41,7 +79,11 @@ export function ScenePanel({
       )}
 
       {scenes.map((scene) => {
-        const isActive = currentScene?.id === scene.id;
+        const isActive =
+          activeSceneId === scene.id;
+
+        const isLoading =
+          loadingSceneId === scene.id;
 
         return (
           <button
@@ -52,6 +94,14 @@ export function ScenePanel({
                 : ""
             }`}
             type="button"
+            disabled={
+              !clientReady ||
+              loadingSceneId !== null
+            }
+            onClick={() =>
+              void handleSceneClick(scene.id)
+            }
+            aria-pressed={isActive}
           >
             <span className="gm-sidebar__scene-icon">
               {isActive ? "◆" : "◇"}
@@ -61,9 +111,11 @@ export function ScenePanel({
               <strong>{scene.name}</strong>
 
               <small>
-                {isActive
-                  ? "Active battlefield"
-                  : "Available scene"}
+                {isLoading
+                  ? "Loading scene..."
+                  : isActive
+                    ? "Active battlefield"
+                    : "Click to activate"}
               </small>
             </span>
           </button>
