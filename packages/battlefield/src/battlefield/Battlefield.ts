@@ -1,6 +1,14 @@
 import { Application } from "pixi.js";
-import { Component, Entity, Scene } from "@nexustable/shared";
-import { EventBus, SceneManager } from "@nexustable/game-engine";
+import {
+    Component,
+    Entity,
+    Scene
+} from "@nexustable/shared";
+import {
+    CampaignManager,
+    EventBus,
+    SceneManager
+} from "@nexustable/game-engine";
 import { Camera } from "../camera/Camera";
 import { CameraController } from "../camera/CameraController";
 import { AssetManager } from "../assets/AssetManager";
@@ -21,20 +29,33 @@ export class Battlefield {
     private inputAdapter?: PixiInputAdapter;
     private interactionManager: InteractionManager;
     private sceneRenderer: SceneRenderer;
+    private campaignManager: CampaignManager;
     private sceneManager: SceneManager;
     private coordinateConverter?: GridCoordinateConverter;
 
     constructor() {
         this.app = new Application();
+
         this.camera = new Camera();
-        this.assetManager = new AssetManager();
-        this.eventBus = new EventBus();
+
+        this.assetManager =
+            new AssetManager();
+
+        this.eventBus =
+            new EventBus();
+
+        this.campaignManager =
+            new CampaignManager();
 
         this.selectionManager =
-            new SelectionManager(this.eventBus);
+            new SelectionManager(
+                this.eventBus
+            );
 
         this.inputManager =
-            new InputManager(this.eventBus);
+            new InputManager(
+                this.eventBus
+            );
 
         this.interactionManager =
             new InteractionManager(
@@ -53,13 +74,17 @@ export class Battlefield {
             new SceneManager();
     }
 
-    async initialize(container: HTMLElement): Promise<void> {
+    async initialize(
+        container: HTMLElement
+    ): Promise<void> {
         await this.app.init({
             background: "#1a1a1a",
             resizeTo: container
         });
 
-        container.appendChild(this.app.canvas);
+        container.appendChild(
+            this.app.canvas
+        );
 
         this.registerDemoAssets();
 
@@ -86,42 +111,73 @@ export class Battlefield {
             this.sceneRenderer.getContainer()
         );
 
-        const demoScene = this.createDemoScene(
-            "demo-scene",
-            "Demo Battlefield",
-            5,
-            4,
-            10,
-            6
+        const campaign =
+            this.campaignManager.createCampaign(
+                "NexusTable Demo Campaign"
+            );
+
+        this.sceneManager.attachCampaign(
+            campaign
         );
 
-        const forestScene = this.createDemoScene(
-            "forgotten-forest",
-            "Forgotten Forest",
-            3,
-            8,
-            14,
-            5
+        const demoScene =
+            this.createDemoScene(
+                "demo-scene",
+                "Demo Battlefield",
+                5,
+                4,
+                10,
+                6
+            );
+
+        const forestScene =
+            this.createDemoScene(
+                "forgotten-forest",
+                "Forgotten Forest",
+                3,
+                8,
+                14,
+                5
+            );
+
+        const villageScene =
+            this.createDemoScene(
+                "village-square",
+                "Village Square",
+                8,
+                12,
+                12,
+                10
+            );
+
+        this.sceneManager.addScene(
+            demoScene
         );
 
-        const villageScene = this.createDemoScene(
-            "village-square",
-            "Village Square",
-            8,
-            12,
-            12,
-            10
+        this.sceneManager.addScene(
+            forestScene
         );
 
-        this.sceneManager.addScene(demoScene);
-        this.sceneManager.addScene(forestScene);
-        this.sceneManager.addScene(villageScene);
+        this.sceneManager.addScene(
+            villageScene
+        );
 
-        this.eventBus.on("drag.finished", async (event) => {
-            await this.handleDragFinished(event);
-        });
+        this.eventBus.on(
+            "drag.finished",
+            async (event) => {
+                await this.handleDragFinished(
+                    event
+                );
+            }
+        );
 
-        await this.loadScene(demoScene.id);
+        await this.loadScene(
+            demoScene.id
+        );
+    }
+
+    public getCampaignManager(): CampaignManager {
+        return this.campaignManager;
     }
 
     public getSceneManager(): SceneManager {
@@ -140,13 +196,20 @@ export class Battlefield {
         return this.assetManager;
     }
 
-    public async loadScene(sceneId: string): Promise<boolean> {
-        this.sceneManager.setCurrentScene(sceneId);
+    public async loadScene(
+        sceneId: string
+    ): Promise<boolean> {
+        this.sceneManager.setCurrentScene(
+            sceneId
+        );
 
         const scene =
             this.sceneManager.getCurrentScene();
 
-        if (!scene || scene.id !== sceneId) {
+        if (
+            !scene ||
+            scene.id !== sceneId
+        ) {
             return false;
         }
 
@@ -156,7 +219,9 @@ export class Battlefield {
                 scene.grid.cellSize
             );
 
-        await this.sceneRenderer.render(scene);
+        await this.sceneRenderer.render(
+            scene
+        );
 
         return true;
     }
@@ -173,7 +238,10 @@ export class Battlefield {
         const scene =
             this.sceneManager.getCurrentScene();
 
-        if (!scene || !this.coordinateConverter) {
+        if (
+            !scene ||
+            !this.coordinateConverter
+        ) {
             return;
         }
 
@@ -195,24 +263,29 @@ export class Battlefield {
 
         const updatedEntity: Entity = {
             ...entity,
-            components: entity.components.map(
-                (component: Component) => {
-                    if (
-                        component.type !==
-                        "grid-position"
-                    ) {
-                        return component;
-                    }
 
-                    return {
-                        ...component,
-                        data: {
-                            x: gridPosition.x,
-                            y: gridPosition.y
+            components:
+                entity.components.map(
+                    (
+                        component: Component
+                    ) => {
+                        if (
+                            component.type !==
+                            "grid-position"
+                        ) {
+                            return component;
                         }
-                    };
-                }
-            )
+
+                        return {
+                            ...component,
+
+                            data: {
+                                x: gridPosition.x,
+                                y: gridPosition.y
+                            }
+                        };
+                    }
+                )
         };
 
         this.sceneManager.updateEntity(
@@ -258,9 +331,11 @@ export class Battlefield {
     ): Scene {
         const player: Entity = {
             id: `${id}-player-token`,
+
             components: [
                 {
                     type: "grid-position",
+
                     data: {
                         x: playerX,
                         y: playerY
@@ -268,6 +343,7 @@ export class Battlefield {
                 },
                 {
                     type: "sprite",
+
                     data: {
                         assetId: "test-token"
                     }
@@ -277,9 +353,11 @@ export class Battlefield {
 
         const monster: Entity = {
             id: `${id}-monster-token`,
+
             components: [
                 {
                     type: "grid-position",
+
                     data: {
                         x: monsterX,
                         y: monsterY
@@ -304,6 +382,7 @@ export class Battlefield {
 
             camera: {
                 zoom: 1,
+
                 position: {
                     x: 0,
                     y: 0

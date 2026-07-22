@@ -2,15 +2,20 @@ import { Battlefield } from "@nexustable/battlefield";
 
 export class NexusClient {
   private readonly battlefield: Battlefield;
+
   private battlefieldContainer: HTMLElement | null = null;
+
   private initialized = false;
+
   private initializationPromise: Promise<void> | null = null;
 
   constructor() {
     this.battlefield = new Battlefield();
   }
 
-  initialize(container: HTMLElement): Promise<void> {
+  initialize(
+    container: HTMLElement,
+  ): Promise<void> {
     if (this.initialized) {
       return Promise.resolve();
     }
@@ -20,6 +25,7 @@ export class NexusClient {
     }
 
     this.battlefieldContainer = container;
+
     this.initializationPromise =
       this.initializeBattlefield(container);
 
@@ -31,15 +37,28 @@ export class NexusClient {
   ): Promise<void> {
     try {
       await this.battlefield.initialize(container);
+
       this.initialized = true;
     } catch (error) {
       this.initializationPromise = null;
+
       throw error;
     }
   }
 
   getBattlefield(): Battlefield {
     return this.battlefield;
+  }
+
+  getCampaignManager() {
+    return this.battlefield.getCampaignManager();
+  }
+
+  getActiveCampaign() {
+    return this
+      .battlefield
+      .getCampaignManager()
+      .getActiveCampaign();
   }
 
   getSceneManager() {
@@ -58,7 +77,9 @@ export class NexusClient {
     return this.battlefield.getAssetManager();
   }
 
-  async loadScene(sceneId: string): Promise<boolean> {
+  async loadScene(
+    sceneId: string,
+  ): Promise<boolean> {
     if (!this.initialized) {
       return false;
     }

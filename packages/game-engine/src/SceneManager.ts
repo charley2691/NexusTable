@@ -1,5 +1,6 @@
 import {
     CameraSettings,
+    Campaign,
     Entity,
     GridSettings,
     Scene
@@ -7,7 +8,10 @@ import {
 
 export class SceneManager {
     private scenes: Map<string, Scene> = new Map();
+
     private currentSceneId?: string;
+
+    private campaign: Campaign | null = null;
 
     createScene(
         name: string
@@ -32,7 +36,42 @@ export class SceneManager {
         return scene;
     }
 
-    addScene(scene: Scene): void {
+    attachCampaign(
+        campaign: Campaign
+    ): void {
+        this.campaign = campaign;
+    }
+
+    detachCampaign(): void {
+        this.campaign = null;
+    }
+
+    addScene(
+        scene: Scene
+    ): void {
+        if (this.campaign) {
+            const existingIndex =
+                this.campaign.scenes.findIndex(
+                    existing =>
+                        existing.id === scene.id
+                );
+
+            if (existingIndex === -1) {
+                this.campaign.scenes.push(scene);
+            } else {
+                this.campaign.scenes[existingIndex] =
+                    scene;
+            }
+
+            if (!this.campaign.activeSceneId) {
+                this.setActiveSceneId(scene.id);
+            } else {
+                this.touchCampaign();
+            }
+
+            return;
+        }
+
         this.scenes.set(scene.id, scene);
 
         if (!this.currentSceneId) {
@@ -43,30 +82,44 @@ export class SceneManager {
     setCurrentScene(
         sceneId: string
     ): void {
-        if (!this.scenes.has(sceneId)) {
+        if (!this.getScene(sceneId)) {
             throw new Error(
                 `Scene ${sceneId} does not exist`
             );
         }
 
-        this.currentSceneId = sceneId;
+        this.setActiveSceneId(sceneId);
     }
 
     getCurrentScene(): Scene | undefined {
-        if (!this.currentSceneId) {
+        const activeSceneId =
+            this.getActiveSceneId();
+
+        if (!activeSceneId) {
             return undefined;
         }
 
-        return this.scenes.get(this.currentSceneId);
+        return this.getScene(activeSceneId);
     }
 
     getScene(
         id: string
     ): Scene | undefined {
+        if (this.campaign) {
+            return this.campaign.scenes.find(
+                scene =>
+                    scene.id === id
+            );
+        }
+
         return this.scenes.get(id);
     }
 
     getAllScenes(): Scene[] {
+        if (this.campaign) {
+            return [...this.campaign.scenes];
+        }
+
         return Array.from(
             this.scenes.values()
         );
@@ -76,10 +129,12 @@ export class SceneManager {
         sceneId: string,
         entityId: string
     ): Entity | undefined {
-        const scene = this.scenes.get(sceneId);
+        const scene =
+            this.getScene(sceneId);
 
         return scene?.entities.find(
-            entity => entity.id === entityId
+            entity =>
+                entity.id === entityId
         );
     }
 
@@ -87,7 +142,8 @@ export class SceneManager {
         sceneId: string,
         entity: Entity
     ): void {
-        const scene = this.scenes.get(sceneId);
+        const scene =
+            this.getScene(sceneId);
 
         if (!scene) {
             throw new Error(
@@ -96,15 +152,20 @@ export class SceneManager {
         }
 
         scene.entities.push(entity);
+
+        this.touchCampaign();
     }
 
     updateEntity(
         sceneId: string,
         entity: Entity
     ): void {
-        const scene = this.scenes.get(sceneId);
+        const scene =
+            this.getScene(sceneId);
 
-        if (!scene) return;
+        if (!scene) {
+            return;
+        }
 
         const index =
             scene.entities.findIndex(
@@ -112,24 +173,73 @@ export class SceneManager {
                     existing.id === entity.id
             );
 
-        if (index === -1) return;
+        if (index === -1) {
+            return;
+        }
 
         scene.entities[index] = entity;
+
+        this.touchCampaign();
     }
 
     removeEntity(
         sceneId: string,
         entityId: string
     ): void {
-        const scene = this.scenes.get(sceneId);
+        const scene =
+            this.getScene(sceneId);
 
-        if (!scene) return;
+        if (!scene) {
+            return;
+        }
+
+        const originalLength =
+            scene.entities.length;
 
         scene.entities =
             scene.entities.filter(
                 entity =>
                     entity.id !== entityId
             );
+
+        if (
+            scene.entities.length !==
+            originalLength
+        ) {
+            this.touchCampaign();
+        }
+    }
+
+    private getActiveSceneId(): string | undefined {
+        if (this.campaign) {
+            return this.campaign.activeSceneId;
+        }
+
+        return this.currentSceneId;
+    }
+
+    private setActiveSceneId(
+        sceneId: string
+    ): void {
+        if (this.campaign) {
+            this.campaign.activeSceneId =
+                sceneId;
+
+            this.touchCampaign();
+
+            return;
+        }
+
+        this.currentSceneId = sceneId;
+    }
+
+    private touchCampaign(): void {
+        if (!this.campaign) {
+            return;
+        }
+
+        this.campaign.metadata.updatedAt =
+            new Date().toISOString();
     }
 
     private createDefaultGridSettings(): GridSettings {
