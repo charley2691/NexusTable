@@ -1,4 +1,7 @@
-import type { Campaign } from "@nexustable/shared";
+import {
+  Campaign,
+  CampaignSerializer,
+} from "@nexustable/shared";
 
 export class CampaignManager {
   private activeCampaign: Campaign | null = null;
@@ -31,6 +34,44 @@ export class CampaignManager {
 
   loadCampaign(campaign: Campaign): void {
     this.activeCampaign = campaign;
+  }
+
+  loadCampaignFromJson(
+    json: string
+  ): Campaign {
+    const campaign =
+      CampaignSerializer.deserialize(
+        json
+      );
+
+    this.activeCampaign =
+      campaign;
+
+    return campaign;
+  }
+
+  saveActiveCampaign(): string {
+    if (!this.activeCampaign) {
+      throw new Error(
+        "No active campaign to save."
+      );
+    }
+
+    return CampaignSerializer.serialize(
+      this.activeCampaign
+    );
+  }
+
+  cloneActiveCampaign(): Campaign {
+    if (!this.activeCampaign) {
+      throw new Error(
+        "No active campaign to clone."
+      );
+    }
+
+    return CampaignSerializer.clone(
+      this.activeCampaign
+    );
   }
 
   closeCampaign(): void {

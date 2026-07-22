@@ -4,9 +4,6 @@ import type {
 } from "@nexustable/shared";
 
 export class AssetManager {
-    private assets =
-        new Map<string, Asset>();
-
     private campaign:
         Campaign | null = null;
 
@@ -23,46 +20,37 @@ export class AssetManager {
     register(
         asset: Asset
     ): void {
-        if (this.campaign) {
-            const existingIndex =
-                this.campaign.assets.findIndex(
-                    existing =>
-                        existing.id === asset.id
-                );
+        const campaign =
+            this.requireCampaign();
 
-            if (existingIndex === -1) {
-                this.campaign.assets.push(
-                    asset
-                );
-            } else {
-                this.campaign.assets[
-                    existingIndex
-                ] = asset;
-            }
+        const existingIndex =
+            campaign.assets.findIndex(
+                existing =>
+                    existing.id === asset.id
+            );
 
-            this.touchCampaign();
-
-            return;
+        if (existingIndex === -1) {
+            campaign.assets.push(
+                asset
+            );
+        } else {
+            campaign.assets[
+                existingIndex
+            ] = asset;
         }
 
-        this.assets.set(
-            asset.id,
-            asset
-        );
+        this.touchCampaign();
     }
 
     get(
         assetId: string
     ): Asset | undefined {
-        if (this.campaign) {
-            return this.campaign.assets.find(
-                asset =>
-                    asset.id === assetId
-            );
-        }
+        const campaign =
+            this.requireCampaign();
 
-        return this.assets.get(
-            assetId
+        return campaign.assets.find(
+            asset =>
+                asset.id === assetId
         );
     }
 
@@ -78,44 +66,38 @@ export class AssetManager {
     }
 
     getAll(): Asset[] {
-        if (this.campaign) {
-            return [
-                ...this.campaign.assets
-            ];
-        }
+        const campaign =
+            this.requireCampaign();
 
-        return Array.from(
-            this.assets.values()
-        );
+        return [
+            ...campaign.assets
+        ];
     }
 
     remove(
         assetId: string
     ): boolean {
-        if (this.campaign) {
-            const originalLength =
-                this.campaign.assets.length;
+        const campaign =
+            this.requireCampaign();
 
-            this.campaign.assets =
-                this.campaign.assets.filter(
-                    asset =>
-                        asset.id !== assetId
-                );
+        const originalLength =
+            campaign.assets.length;
 
-            const removed =
-                this.campaign.assets.length !==
-                originalLength;
+        campaign.assets =
+            campaign.assets.filter(
+                asset =>
+                    asset.id !== assetId
+            );
 
-            if (removed) {
-                this.touchCampaign();
-            }
+        const removed =
+            campaign.assets.length !==
+                       originalLength;
 
-            return removed;
+        if (removed) {
+            this.touchCampaign();
         }
 
-        return this.assets.delete(
-            assetId
-        );
+        return removed;
     }
 
     has(
@@ -127,12 +109,21 @@ export class AssetManager {
         );
     }
 
-    private touchCampaign(): void {
+    private requireCampaign(): Campaign {
         if (!this.campaign) {
-            return;
+            throw new Error(
+                "AssetManager requires an attached campaign."
+            );
         }
 
-        this.campaign.metadata.updatedAt =
+        return this.campaign;
+    }
+
+    private touchCampaign(): void {
+        const campaign =
+            this.requireCampaign();
+
+        campaign.metadata.updatedAt =
             new Date().toISOString();
     }
 }
