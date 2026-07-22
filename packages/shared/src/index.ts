@@ -10,3 +10,4 @@ export * from "./scene/MapReference";
 export * from "./scene/Scene";
 
 export * from "./assets/Asset";
+export * from "./campaign";
