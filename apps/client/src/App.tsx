@@ -1,27 +1,33 @@
 import { useEffect, useRef } from "react";
 import { Battlefield } from "@nexustable/battlefield";
+import { GMSidebar } from "./components/gm-sidebar/GMSidebar";
+import "./App.css";
 
 function App() {
-    const containerRef = useRef<HTMLDivElement>(null);
+  const battlefieldContainerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (!containerRef.current) return;
+  useEffect(() => {
+    const container = battlefieldContainerRef.current;
 
-        const battlefield = new Battlefield();
+    if (!container) {
+      return;
+    }
 
-        battlefield.initialize(containerRef.current);
-    }, []);
+    const battlefield = new Battlefield();
 
-    return (
-        <div
-            ref={containerRef}
-            style={{
-                width: "100vw",
-                height: "100vh",
-                overflow: "hidden"
-            }}
-        />
-    );
+    battlefield.initialize(container);
+  }, []);
+
+  return (
+    <main className="app">
+      <div
+        ref={battlefieldContainerRef}
+        className="app__battlefield"
+      />
+
+      <GMSidebar />
+    </main>
+  );
 }
 
 export default App;
