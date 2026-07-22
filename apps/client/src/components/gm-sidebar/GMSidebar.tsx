@@ -1,10 +1,16 @@
 import { useState, type ReactNode } from "react";
+import type { NexusClient } from "../../core/NexusClient";
 import "./GMSidebar.css";
 
 interface SidebarSectionProps {
   title: string;
   children: ReactNode;
   defaultOpen?: boolean;
+}
+
+interface GMSidebarProps {
+  client: NexusClient;
+  clientReady: boolean;
 }
 
 function SidebarSection({
@@ -23,6 +29,7 @@ function SidebarSection({
         aria-expanded={isOpen}
       >
         <span>{title}</span>
+
         <span
           className={`gm-sidebar__section-arrow ${
             isOpen ? "gm-sidebar__section-arrow--open" : ""
@@ -33,62 +40,139 @@ function SidebarSection({
         </span>
       </button>
 
-      {isOpen && <div className="gm-sidebar__section-content">{children}</div>}
+      {isOpen && (
+        <div className="gm-sidebar__section-content">
+          {children}
+        </div>
+      )}
     </section>
   );
 }
 
-export function GMSidebar() {
+export function GMSidebar({
+  client,
+  clientReady,
+}: GMSidebarProps) {
   const [assetSearch, setAssetSearch] = useState("");
   const [assetType, setAssetType] = useState("all");
+
+  const sceneManager = client.getSceneManager();
+
+  const scenes = clientReady
+    ? sceneManager.getAllScenes()
+    : [];
+
+  const currentScene = clientReady
+    ? sceneManager.getCurrentScene()
+    : null;
 
   return (
     <aside className="gm-sidebar">
       <header className="gm-sidebar__header">
         <div>
-          <p className="gm-sidebar__eyebrow">NexusTable</p>
-          <h1 className="gm-sidebar__title">GM Workspace</h1>
+          <p className="gm-sidebar__eyebrow">
+            NexusTable
+          </p>
+
+          <h1 className="gm-sidebar__title">
+            GM Workspace
+          </h1>
         </div>
 
-        <span className="gm-sidebar__role-badge">GM</span>
+        <span className="gm-sidebar__role-badge">
+          GM
+        </span>
       </header>
 
       <div className="gm-sidebar__content">
         <SidebarSection title="Scenes">
-          <button className="gm-sidebar__scene gm-sidebar__scene--active">
-            <span className="gm-sidebar__scene-icon">◆</span>
+          {!clientReady && (
+            <div className="gm-sidebar__empty-state">
+              <strong>Loading scenes</strong>
+              <span>
+                Waiting for the battlefield to initialize.
+              </span>
+            </div>
+          )}
 
-            <span className="gm-sidebar__scene-details">
-              <strong>Current Scene</strong>
-              <small>Active battlefield</small>
-            </span>
-          </button>
+          {clientReady && scenes.length === 0 && (
+            <div className="gm-sidebar__empty-state">
+              <strong>No scenes available</strong>
+              <span>
+                Create a scene to begin building your adventure.
+              </span>
+            </div>
+          )}
 
-          <button className="gm-sidebar__secondary-button" type="button">
+          {scenes.map((scene) => {
+            const isActive =
+              currentScene?.id === scene.id;
+
+            return (
+              <button
+                key={scene.id}
+                className={`gm-sidebar__scene ${
+                  isActive
+                    ? "gm-sidebar__scene--active"
+                    : ""
+                }`}
+                type="button"
+              >
+                <span className="gm-sidebar__scene-icon">
+                  {isActive ? "◆" : "◇"}
+                </span>
+
+                <span className="gm-sidebar__scene-details">
+                  <strong>{scene.name}</strong>
+
+                  <small>
+                    {isActive
+                      ? "Active battlefield"
+                      : "Available scene"}
+                  </small>
+                </span>
+              </button>
+            );
+          })}
+
+          <button
+            className="gm-sidebar__secondary-button"
+            type="button"
+            disabled
+            title="Scene creation will be added next"
+          >
             + Create Scene
           </button>
         </SidebarSection>
 
         <SidebarSection title="Asset Library">
           <label className="gm-sidebar__field">
-            <span className="gm-sidebar__field-label">Search</span>
+            <span className="gm-sidebar__field-label">
+              Search
+            </span>
 
             <input
               className="gm-sidebar__input"
               type="search"
               value={assetSearch}
-              onChange={(event) => setAssetSearch(event.target.value)}
+              onChange={(event) =>
+                setAssetSearch(event.target.value)
+              }
               placeholder="Search assets..."
             />
           </label>
 
           <label className="gm-sidebar__field">
-            <span className="gm-sidebar__field-label">Type</span>
+            <span className="gm-sidebar__field-label">
+              Type
+            </span>
 
             <select
               className="gm-sidebar__select"
               value={assetType}
-              onChange={(event) => setAssetType(event.target.value)}
+              onChange={(event) =>
+                setAssetType(event.target.value)
+              }
             >
               <option value="all">All assets</option>
               <option value="map">Maps</option>
@@ -103,7 +187,8 @@ export function GMSidebar() {
           <div className="gm-sidebar__empty-state">
             <strong>No assets yet</strong>
             <span>
-              Imported maps, tokens and game objects will appear here.
+              Imported maps, tokens and game objects will
+              appear here.
             </span>
           </div>
         </SidebarSection>
@@ -111,11 +196,16 @@ export function GMSidebar() {
         <SidebarSection title="Selected">
           <div className="gm-sidebar__empty-state">
             <strong>Nothing selected</strong>
-            <span>Select an entity on the battlefield to inspect it.</span>
+            <span>
+              Select an entity on the battlefield to inspect it.
+            </span>
           </div>
         </SidebarSection>
 
-        <SidebarSection title="Players" defaultOpen={false}>
+        <SidebarSection
+          title="Players"
+          defaultOpen={false}
+        >
           <div className="gm-sidebar__player">
             <span className="gm-sidebar__status-dot gm-sidebar__status-dot--online" />
 
@@ -126,7 +216,9 @@ export function GMSidebar() {
           </div>
 
           <div className="gm-sidebar__empty-state gm-sidebar__empty-state--small">
-            <span>Multiplayer participants will appear here.</span>
+            <span>
+              Multiplayer participants will appear here.
+            </span>
           </div>
         </SidebarSection>
       </div>

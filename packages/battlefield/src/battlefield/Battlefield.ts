@@ -104,6 +104,22 @@ export class Battlefield {
         await this.sceneRenderer.render(scene);
     }
 
+        public getSceneManager(): SceneManager {
+        return this.sceneManager;
+    }
+
+    public getSelectionManager(): SelectionManager {
+        return this.selectionManager;
+    }
+
+    public getEventBus(): EventBus {
+        return this.eventBus;
+    }
+
+    public getAssetManager(): AssetManager {
+        return this.assetManager;
+    }
+
     private async handleDragFinished(event: unknown): Promise<void> {
         const data = event as {
             entityId: string;

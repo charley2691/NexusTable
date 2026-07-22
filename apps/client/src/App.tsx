@@ -1,10 +1,18 @@
-import { useEffect, useRef } from "react";
-import { Battlefield } from "@nexustable/battlefield";
+import { useEffect, useRef, useState } from "react";
 import { GMSidebar } from "./components/gm-sidebar/GMSidebar";
+import { NexusClient } from "./core/NexusClient";
 import "./App.css";
 
 function App() {
   const battlefieldContainerRef = useRef<HTMLDivElement>(null);
+  const nexusClientRef = useRef<NexusClient | null>(null);
+  const [clientReady, setClientReady] = useState(false);
+
+  if (nexusClientRef.current === null) {
+    nexusClientRef.current = new NexusClient();
+  }
+
+  const nexusClient = nexusClientRef.current;
 
   useEffect(() => {
     const container = battlefieldContainerRef.current;
@@ -13,10 +21,22 @@ function App() {
       return;
     }
 
-    const battlefield = new Battlefield();
+    let cancelled = false;
 
-    battlefield.initialize(container);
-  }, []);
+    const initializeClient = async () => {
+      await nexusClient.initialize(container);
+
+      if (!cancelled) {
+        setClientReady(true);
+      }
+    };
+
+    void initializeClient();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [nexusClient]);
 
   return (
     <main className="app">
@@ -25,7 +45,10 @@ function App() {
         className="app__battlefield"
       />
 
-      <GMSidebar />
+      <GMSidebar
+        client={nexusClient}
+        clientReady={clientReady}
+      />
     </main>
   );
 }
