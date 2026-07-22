@@ -1,20 +1,23 @@
+import type { Asset } from "../assets/Asset";
 import type { Scene } from "../scene/Scene";
 
 export interface CampaignMetadata {
-  createdAt: string;
-  updatedAt: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface Campaign {
-  version: number;
+    version: number;
 
-  id: string;
-  name: string;
+    id: string;
+    name: string;
 
-  scenes: Scene[];
-  activeSceneId?: string;
+    scenes: Scene[];
+    assets: Asset[];
 
-  metadata: CampaignMetadata;
+    activeSceneId?: string;
 
-  extensions: Record<string, unknown>;
+    metadata: CampaignMetadata;
+
+    extensions: Record<string, unknown>;
 }

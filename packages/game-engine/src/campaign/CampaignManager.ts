@@ -13,6 +13,7 @@ export class CampaignManager {
       name,
 
       scenes: [],
+      assets: [],
       activeSceneId: undefined,
 
       metadata: {

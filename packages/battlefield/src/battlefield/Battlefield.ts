@@ -86,6 +86,19 @@ export class Battlefield {
             this.app.canvas
         );
 
+        const campaign =
+            this.campaignManager.createCampaign(
+                "NexusTable Demo Campaign"
+            );
+
+        this.sceneManager.attachCampaign(
+            campaign
+        );
+
+        this.assetManager.attachCampaign(
+            campaign
+        );
+
         this.registerDemoAssets();
 
         new CameraController(
@@ -109,15 +122,6 @@ export class Battlefield {
 
         this.camera.container.addChild(
             this.sceneRenderer.getContainer()
-        );
-
-        const campaign =
-            this.campaignManager.createCampaign(
-                "NexusTable Demo Campaign"
-            );
-
-        this.sceneManager.attachCampaign(
-            campaign
         );
 
         const demoScene =
