@@ -12,3 +12,4 @@ export * from "./assets/index.js";
 export * from "./users/index.js";
 export * from "./permissions/index.js";
 export * from "./ids/index.js";
+export * from "./api/index.js";

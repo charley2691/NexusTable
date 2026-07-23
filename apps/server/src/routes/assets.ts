@@ -1,3 +1,4 @@
+
 import {
     type NextFunction,
     type Request,
@@ -16,6 +17,10 @@ import type {
 import {
     AssetServiceToken,
 } from "@nexustable/services";
+
+import {
+    toAssetDto,
+} from "../mappers/index";
 
 import {
     services,
@@ -162,7 +167,7 @@ assetsRouter.post(
                 });
 
             res.status(201).json(
-                asset,
+                toAssetDto(asset),
             );
         } catch (error: unknown) {
             next(error);
@@ -184,7 +189,11 @@ assetsRouter.get(
             const assets =
                 await assetService.getAll();
 
-            res.json(assets);
+            res.json(
+                assets.map(
+                    toAssetDto,
+                ),
+            );
         } catch (error: unknown) {
             next(error);
         }
@@ -309,7 +318,9 @@ assetsRouter.get(
                 return;
             }
 
-            res.json(asset);
+            res.json(
+                toAssetDto(asset),
+            );
         } catch (error: unknown) {
             next(error);
         }
