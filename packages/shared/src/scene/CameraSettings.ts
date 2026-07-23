@@ -1,4 +1,4 @@
-import { Position } from "../world/Position";
+import { Position } from "../world/Position.js";
 
 export interface CameraSettings {
 

@@ -6,7 +6,9 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc && node dist/container/ServiceContainer.test.js"
   },
   "dependencies": {
     "@nexustable/shared": "0.0.1",

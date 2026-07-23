@@ -1,5 +1,5 @@
-import type { Asset } from "../assets/Asset";
-import type { Scene } from "../scene/Scene";
+import type { Asset } from "../assets/Asset.js";
+import type { Scene } from "../scene/Scene.js";
 
 export interface CampaignMetadata {
     createdAt: string;

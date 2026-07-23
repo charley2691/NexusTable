@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
     createUuid,
     isUuid,
-} from "./Uuid";
+} from "./Uuid.js";
 
 const firstId = createUuid();
 const secondId = createUuid();

@@ -1,9 +1,9 @@
 import {
     CampaignSerializer
-} from "./CampaignSerializer";
+} from "./CampaignSerializer.js";
 import type {
     Campaign
-} from "./Campaign";
+} from "./Campaign.js";
 
 const campaign: Campaign = {
     version: 1,

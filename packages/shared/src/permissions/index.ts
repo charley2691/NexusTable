@@ -1,3 +1,3 @@
-export * from "./Capability";
-export * from "./PermissionContext";
-export * from "./PermissionDecision";
+export * from "./Capability.js";
+export * from "./PermissionContext.js";
+export * from "./PermissionDecision.js";

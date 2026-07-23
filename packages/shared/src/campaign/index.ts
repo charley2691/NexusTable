@@ -1,8 +1,8 @@
 export type {
   Campaign,
   CampaignMetadata,
-} from "./Campaign";
+} from "./Campaign.js";
 
 export {
     CampaignSerializer
-} from "./CampaignSerializer";
+} from "./CampaignSerializer.js";

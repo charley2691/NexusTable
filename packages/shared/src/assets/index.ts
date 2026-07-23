@@ -1,2 +1,2 @@
-export * from "./Asset";
-export * from "./AssetReference";
+export * from "./Asset.js";
+export * from "./AssetReference.js";

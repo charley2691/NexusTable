@@ -1,12 +1,12 @@
 import type {
     AssetScope,
     AssetStatus,
-} from "../assets";
+} from "../assets/index.js";
 
 import type {
     UploadTrustLevel,
     UserRole,
-} from "../users";
+} from "../users/index.js";
 
 export interface CampaignPermissionContext {
     campaignId: string;

@@ -4,3 +4,5 @@ export * from "./networking/index.js";
 export * from "./permissions/index.js";
 export * from "./search/index.js";
 export * from "./users/index.js";
+export * from "./container/index.js";
+export * from "./bootstrap/index.js";
