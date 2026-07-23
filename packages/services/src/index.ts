@@ -6,3 +6,4 @@ export * from "./search/index.js";
 export * from "./users/index.js";
 export * from "./container/index.js";
 export * from "./bootstrap/index.js";
+export * from "./database/index.js";

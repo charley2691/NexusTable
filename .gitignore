@@ -24,3 +24,9 @@ apps/client/dist/
 
 # Temporary files
 *.tmp
+
+# NexusTable runtime storage
+/storage/
+
+# NexusTable SQLite database
+/database/

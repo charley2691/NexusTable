@@ -3,11 +3,18 @@ import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
+import { assetsRouter } from "./routes/assets";
+
 const PORT = 3001;
 
 const app = express();
 
 app.use(cors());
+
+app.use(
+  "/api/assets",
+  assetsRouter
+);
 
 app.get("/", (_req, res) => {
   res.json({

@@ -14,3 +14,5 @@ export * from "./MemoryAssetBlobStore.js";
 
 export * from "./AssetService.js";
 export * from "./AssetTokens.js";
+export * from "./FileSystemAssetBlobStore.js";
+export * from "./SQLiteAssetRepository.js";
