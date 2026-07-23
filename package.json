@@ -16,5 +16,8 @@
     "@nexustable/battlefield": "^0.0.1",
     "client": "^0.0.0",
     "workspace": "^0.0.1-preview.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
   }
 }
