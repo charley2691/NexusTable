@@ -4,3 +4,4 @@ export * from "./SceneManager";
 export * from "./PluginManager";
 export * from "./ComponentManager";
 export * from "./campaign";
+export * from "./EntityFactory";
