@@ -7,6 +7,10 @@ import type {
 } from "@nexustable/shared";
 
 import type {
+  AssetBlobStore
+} from "./AssetBlobStore.js";
+
+import type {
   AssetUpload
 } from "./AssetUpload.js";
 
@@ -26,6 +30,9 @@ export class AssetService {
   constructor(
     private readonly repository:
       AssetRepository,
+
+    private readonly blobStore:
+      AssetBlobStore,
 
     private readonly validator:
       AssetUploadValidator,
@@ -96,7 +103,20 @@ export class AssetService {
         upload.height
     };
 
-    await this.repository.save(asset);
+    await this.blobStore.save(
+      asset.id,
+      upload.data
+    );
+
+    try {
+      await this.repository.save(asset);
+    } catch (error) {
+      await this.blobStore.delete(
+        asset.id
+      );
+
+      throw error;
+    }
 
     return asset;
   }
@@ -109,6 +129,23 @@ export class AssetService {
     );
   }
 
+  async getContent(
+    assetId: string
+  ): Promise<Uint8Array | undefined> {
+    const asset =
+      await this.repository.findById(
+        assetId
+      );
+
+    if (asset === undefined) {
+      return undefined;
+    }
+
+    return this.blobStore.get(
+      assetId
+    );
+  }
+
   async getAll(): Promise<Asset[]> {
     return this.repository.findAll();
   }
@@ -116,6 +153,19 @@ export class AssetService {
   async delete(
     assetId: string
   ): Promise<boolean> {
+    const asset =
+      await this.repository.findById(
+        assetId
+      );
+
+    if (asset === undefined) {
+      return false;
+    }
+
+    await this.blobStore.delete(
+      assetId
+    );
+
     return this.repository.delete(
       assetId
     );

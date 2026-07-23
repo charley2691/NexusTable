@@ -3,6 +3,7 @@ import {
 } from "../container/index.js";
 
 import {
+  AssetBlobStoreToken,
   AssetHasherToken,
   AssetRepositoryToken,
   AssetService,
@@ -10,6 +11,7 @@ import {
   AssetUploadValidator,
   AssetUploadValidatorToken,
   defaultAssetValidationRules,
+  MemoryAssetBlobStore,
   MemoryAssetRepository,
   WebCryptoAssetHasher
 } from "../assets/index.js";
@@ -22,6 +24,9 @@ export function createServiceContainer():
   const assetRepository =
     new MemoryAssetRepository();
 
+  const assetBlobStore =
+    new MemoryAssetBlobStore();
+
   const assetHasher =
     new WebCryptoAssetHasher();
 
@@ -33,6 +38,7 @@ export function createServiceContainer():
   const assetService =
     new AssetService(
       assetRepository,
+      assetBlobStore,
       assetUploadValidator,
       assetHasher
     );
@@ -40,6 +46,11 @@ export function createServiceContainer():
   container.register(
     AssetRepositoryToken,
     assetRepository
+  );
+
+  container.register(
+    AssetBlobStoreToken,
+    assetBlobStore
   );
 
   container.register(

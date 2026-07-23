@@ -8,5 +8,9 @@ export * from "./WebCryptoAssetHasher.js";
 
 export * from "./AssetRepository.js";
 export * from "./MemoryAssetRepository.js";
+
+export * from "./AssetBlobStore.js";
+export * from "./MemoryAssetBlobStore.js";
+
 export * from "./AssetService.js";
 export * from "./AssetTokens.js";

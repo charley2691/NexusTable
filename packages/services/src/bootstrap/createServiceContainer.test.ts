@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 
 import {
+  AssetBlobStoreToken,
   AssetRepositoryToken,
   AssetServiceToken
 } from "../assets/index.js";
@@ -21,6 +22,17 @@ assert.equal(
 
 console.log(
   "✓ asset repository is registered"
+);
+
+assert.equal(
+  container.has(
+    AssetBlobStoreToken
+  ),
+  true
+);
+
+console.log(
+  "✓ asset blob store is registered"
 );
 
 assert.equal(
@@ -92,6 +104,43 @@ console.log(
   "✓ validated asset can be uploaded and hashed"
 );
 
+const storedContent =
+  await assetService.getContent(
+    asset.id
+  );
+
+assert.notEqual(
+  storedContent,
+  undefined
+);
+
+assert.deepEqual(
+  Array.from(storedContent ?? []),
+  Array.from(fileData)
+);
+
+console.log(
+  "✓ asset content can be retrieved"
+);
+
+if (storedContent !== undefined) {
+  storedContent[0] = 255;
+}
+
+const unchangedContent =
+  await assetService.getContent(
+    asset.id
+  );
+
+assert.deepEqual(
+  Array.from(unchangedContent ?? []),
+  Array.from(fileData)
+);
+
+console.log(
+  "✓ stored asset content cannot be mutated externally"
+);
+
 const duplicate =
   await assetService.upload({
     name: "Duplicate Name.png",
@@ -144,6 +193,17 @@ const deleted =
 assert.equal(
   deleted,
   true
+);
+
+assert.equal(
+  await assetService.getContent(
+    asset.id
+  ),
+  undefined
+);
+
+console.log(
+  "✓ asset content is deleted with its metadata"
 );
 
 assert.equal(
