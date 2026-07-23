@@ -1,6 +1,7 @@
 import {
   Campaign,
   CampaignSerializer,
+  createUuid,
 } from "@nexustable/shared";
 
 export class CampaignManager {
@@ -12,7 +13,7 @@ export class CampaignManager {
     const campaign: Campaign = {
       version: 1,
 
-      id: crypto.randomUUID(),
+      id: createUuid(),
       name,
 
       scenes: [],
@@ -36,16 +37,11 @@ export class CampaignManager {
     this.activeCampaign = campaign;
   }
 
-  loadCampaignFromJson(
-    json: string
-  ): Campaign {
+  loadCampaignFromJson(json: string): Campaign {
     const campaign =
-      CampaignSerializer.deserialize(
-        json
-      );
+      CampaignSerializer.deserialize(json);
 
-    this.activeCampaign =
-      campaign;
+    this.activeCampaign = campaign;
 
     return campaign;
   }
