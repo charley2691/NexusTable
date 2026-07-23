@@ -11,3 +11,6 @@ export * from "./scene/Scene";
 
 export * from "./assets/Asset";
 export * from "./campaign";
+export * from "./assets";
+export * from "./users";
+export * from "./permissions";
