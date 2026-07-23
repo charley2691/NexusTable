@@ -1,6 +1,7 @@
 import {
     CameraSettings,
     Campaign,
+    createUuid,
     Entity,
     GridSettings,
     Scene
@@ -19,7 +20,7 @@ export class SceneManager {
         const scene: Scene = {
             version: 1,
 
-            id: crypto.randomUUID(),
+            id: createUuid(),
             name,
 
             grid: this.createDefaultGridSettings(),
