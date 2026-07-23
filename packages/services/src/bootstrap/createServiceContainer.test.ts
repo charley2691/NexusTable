@@ -39,17 +39,30 @@ const assetService =
     AssetServiceToken
   );
 
+const fileData =
+  new TextEncoder().encode(
+    "fake image data"
+  );
+
 const asset =
-  await assetService.create({
-    name: "Dungeon Map",
+  await assetService.upload({
+    name: "Dungeon Map.png",
     kind: "map",
     mimeType: "image/png",
-    sizeBytes: 2048
+    sizeBytes: fileData.byteLength,
+    data: fileData,
+    tags: [
+      "Dungeon",
+      "Map",
+      "dungeon"
+    ],
+    width: 1920,
+    height: 1080
   });
 
 assert.equal(
   asset.name,
-  "Dungeon Map"
+  "Dungeon Map.png"
 );
 
 assert.equal(
@@ -57,8 +70,44 @@ assert.equal(
   "map"
 );
 
+assert.equal(
+  asset.extension,
+  "png"
+);
+
+assert.equal(
+  asset.sha256.length,
+  64
+);
+
+assert.deepEqual(
+  asset.tags,
+  [
+    "dungeon",
+    "map"
+  ]
+);
+
 console.log(
-  "✓ asset can be created"
+  "✓ validated asset can be uploaded and hashed"
+);
+
+const duplicate =
+  await assetService.upload({
+    name: "Duplicate Name.png",
+    kind: "map",
+    mimeType: "image/png",
+    sizeBytes: fileData.byteLength,
+    data: fileData
+  });
+
+assert.equal(
+  duplicate.id,
+  asset.id
+);
+
+console.log(
+  "✓ duplicate asset data is detected"
 );
 
 const storedAsset =

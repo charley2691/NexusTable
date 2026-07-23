@@ -1,63 +1,35 @@
-export type AssetType =
-    | "map"
-    | "token"
-    | "icon"
-    | "portrait"
-    | "handout"
-    | "effect"
-    | "audio"
-    | "other";
+export type AssetKind =
+  | "map"
+  | "token"
+  | "portrait"
+  | "handout"
+  | "other";
 
 export type AssetScope =
-    | "personal"
-    | "shared";
+  | "private"
+  | "campaign"
+  | "public";
 
 export type AssetStatus =
-    | "pending"
-    | "approved"
-    | "quarantined"
-    | "rejected"
-    | "archived";
+  | "pending"
+  | "ready"
+  | "failed";
 
 export interface Asset {
-    id: string;
-    type: AssetType;
-    name: string;
+  readonly id: string;
+  readonly name: string;
+  readonly kind: AssetKind;
 
-    /**
-     * Determines whether the asset belongs to one user
-     * or is available through the shared asset library.
-     */
-    scope: AssetScope;
+  readonly mimeType: string;
+  readonly extension: string;
+  readonly sizeBytes: number;
+  readonly sha256: string;
 
-    /**
-     * The user who owns the asset.
-     *
-     * For personal assets, this is normally the player who
-     * uploaded their character token or portrait.
-     */
-    ownerUserId: string;
+  readonly createdAt: string;
+  readonly createdBy?: string;
 
-    /**
-     * The user who originally uploaded the asset.
-     */
-    uploadedByUserId: string;
+  readonly tags: readonly string[];
 
-    /**
-     * Internal server-side storage reference.
-     *
-     * This replaces the old `path` property. It should not be
-     * treated as a public URL or stored in portable campaign files.
-     */
-    storageKey: string;
-
-    mimeType: string;
-    sizeBytes: number;
-
-    tags: string[];
-
-    status: AssetStatus;
-
-    createdAt: string;
-    updatedAt: string;
+  readonly width?: number;
+  readonly height?: number;
 }

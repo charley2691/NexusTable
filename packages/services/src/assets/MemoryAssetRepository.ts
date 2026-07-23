@@ -1,6 +1,6 @@
 import type {
   Asset
-} from "./Asset.js";
+} from "@nexustable/shared";
 
 import type {
   AssetRepository
@@ -31,6 +31,21 @@ export class MemoryAssetRepository
       : undefined;
   }
 
+  async findByHash(
+    sha256: string
+  ): Promise<Asset | undefined> {
+    for (
+      const asset of
+      this.assets.values()
+    ) {
+      if (asset.sha256 === sha256) {
+        return structuredClone(asset);
+      }
+    }
+
+    return undefined;
+  }
+
   async findAll(): Promise<Asset[]> {
     return Array.from(
       this.assets.values(),
@@ -41,6 +56,8 @@ export class MemoryAssetRepository
   async delete(
     assetId: string
   ): Promise<boolean> {
-    return this.assets.delete(assetId);
+    return this.assets.delete(
+      assetId
+    );
   }
 }

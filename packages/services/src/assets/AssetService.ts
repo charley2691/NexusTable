@@ -3,45 +3,97 @@ import {
 } from "@nexustable/shared";
 
 import type {
-  Asset,
-  CreateAssetInput
-} from "./Asset.js";
+  Asset
+} from "@nexustable/shared";
+
+import type {
+  AssetUpload
+} from "./AssetUpload.js";
 
 import type {
   AssetRepository
 } from "./AssetRepository.js";
 
+import type {
+  AssetHasher
+} from "./AssetHasher.js";
+
+import {
+  AssetUploadValidator
+} from "./AssetUploadValidator.js";
+
 export class AssetService {
   constructor(
     private readonly repository:
-      AssetRepository
+      AssetRepository,
+
+    private readonly validator:
+      AssetUploadValidator,
+
+    private readonly hasher:
+      AssetHasher
   ) {}
 
-  async create(
-    input: CreateAssetInput
+  async upload(
+    upload: AssetUpload
   ): Promise<Asset> {
-    const name =
-      input.name.trim();
+    this.validator.validate(upload);
 
-    if (name.length === 0) {
-      throw new Error(
-        "Asset name cannot be empty."
+    const sha256 =
+      await this.hasher.hash(
+        upload.data
       );
+
+    const existingAsset =
+      await this.repository.findByHash(
+        sha256
+      );
+
+    if (existingAsset !== undefined) {
+      return existingAsset;
     }
 
-    if (input.sizeBytes < 0) {
+    const extension =
+      this.validator.getExtension(
+        upload.name
+      );
+
+    if (extension === undefined) {
       throw new Error(
-        "Asset size cannot be negative."
+        "Validated asset has no extension."
       );
     }
 
     const asset: Asset = {
       id: createUuid(),
-      name,
-      kind: input.kind,
-      mimeType: input.mimeType,
-      sizeBytes: input.sizeBytes,
-      createdAt: new Date().toISOString()
+      name: upload.name.trim(),
+      kind: upload.kind,
+
+      mimeType:
+        upload.mimeType
+          .trim()
+          .toLowerCase(),
+
+      extension,
+      sizeBytes: upload.sizeBytes,
+      sha256,
+
+      createdAt:
+        new Date().toISOString(),
+
+      createdBy:
+        upload.createdBy,
+
+      tags:
+        this.normalizeTags(
+          upload.tags ?? []
+        ),
+
+      width:
+        upload.width,
+
+      height:
+        upload.height
     };
 
     await this.repository.save(asset);
@@ -66,6 +118,22 @@ export class AssetService {
   ): Promise<boolean> {
     return this.repository.delete(
       assetId
+    );
+  }
+
+  private normalizeTags(
+    tags: readonly string[]
+  ): string[] {
+    return Array.from(
+      new Set(
+        tags
+          .map(tag =>
+            tag.trim().toLowerCase()
+          )
+          .filter(tag =>
+            tag.length > 0
+          )
+      )
     );
   }
 }

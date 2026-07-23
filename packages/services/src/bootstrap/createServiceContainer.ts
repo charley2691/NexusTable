@@ -3,10 +3,15 @@ import {
 } from "../container/index.js";
 
 import {
+  AssetHasherToken,
   AssetRepositoryToken,
   AssetService,
   AssetServiceToken,
-  MemoryAssetRepository
+  AssetUploadValidator,
+  AssetUploadValidatorToken,
+  defaultAssetValidationRules,
+  MemoryAssetRepository,
+  WebCryptoAssetHasher
 } from "../assets/index.js";
 
 export function createServiceContainer():
@@ -17,14 +22,34 @@ export function createServiceContainer():
   const assetRepository =
     new MemoryAssetRepository();
 
+  const assetHasher =
+    new WebCryptoAssetHasher();
+
+  const assetUploadValidator =
+    new AssetUploadValidator(
+      defaultAssetValidationRules
+    );
+
   const assetService =
     new AssetService(
-      assetRepository
+      assetRepository,
+      assetUploadValidator,
+      assetHasher
     );
 
   container.register(
     AssetRepositoryToken,
     assetRepository
+  );
+
+  container.register(
+    AssetHasherToken,
+    assetHasher
+  );
+
+  container.register(
+    AssetUploadValidatorToken,
+    assetUploadValidator
   );
 
   container.register(
